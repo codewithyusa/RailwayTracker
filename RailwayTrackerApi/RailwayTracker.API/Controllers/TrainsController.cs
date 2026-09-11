@@ -1,0 +1,20 @@
+using MediatR;
+using Microsoft.AspNetCore.Mvc;
+using RailwayTracker.Application.Trains.Queries.GetAllTrains;
+
+namespace RailwayTracker.API.Controllers;
+
+[ApiController]
+[Route("api/trains")]
+public class TrainsController : ControllerBase
+{
+    private readonly IMediator _mediator;
+    public TrainsController(IMediator mediator) => _mediator = mediator;
+
+    [HttpGet]
+    public async Task<IActionResult> GetAll(CancellationToken ct)
+    {
+        var result = await _mediator.Send(new GetAllTrainsQuery(), ct);
+        return Ok(result.Value);
+    }
+}
