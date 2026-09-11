@@ -228,3 +228,4 @@ C:\Users\SPACE123\Documents\.net\RailwayTracker\RailwayTrackerApi\RailwayTracker
 C:\Users\SPACE123\Documents\.net\RailwayTracker\RailwayTrackerApi\RailwayTracker.Tests\obj\Debug\net10.0\RailwayTracker.Tests.pdb
 C:\Users\SPACE123\Documents\.net\RailwayTracker\RailwayTrackerApi\RailwayTracker.Tests\obj\Debug\net10.0\RailwayTracker.Tests.genruntimeconfig.cache
 C:\Users\SPACE123\Documents\.net\RailwayTracker\RailwayTrackerApi\RailwayTracker.Tests\obj\Debug\net10.0\ref\RailwayTracker.Tests.dll
+C:\Users\SPACE123\Documents\.net\RailwayTracker\RailwayTrackerApi\RailwayTracker.Tests\obj\Debug\net10.0\RailwayTracker.Tests.sourcelink.json

@@ -17,3 +17,4 @@ C:\Users\SPACE123\Documents\.net\RailwayTracker\RailwayTrackerApi\RailwayTracker
 C:\Users\SPACE123\Documents\.net\RailwayTracker\RailwayTrackerApi\RailwayTracker.Infrastructure\obj\Debug\net10.0\RailwayTracker.Infrastructure.pdb
 C:\Users\SPACE123\Documents\.net\RailwayTracker\RailwayTrackerApi\RailwayTracker.Infrastructure\obj\Debug\net10.0\RailwayTracker.Infrastructure.genruntimeconfig.cache
 C:\Users\SPACE123\Documents\.net\RailwayTracker\RailwayTrackerApi\RailwayTracker.Infrastructure\obj\Debug\net10.0\ref\RailwayTracker.Infrastructure.dll
+C:\Users\SPACE123\Documents\.net\RailwayTracker\RailwayTrackerApi\RailwayTracker.Infrastructure\obj\Debug\net10.0\RailwayTracker.Infrastructure.sourcelink.json
