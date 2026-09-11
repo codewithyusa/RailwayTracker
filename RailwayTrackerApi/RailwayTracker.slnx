@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="RailwayTracker.API/RailwayTracker.API.csproj" />
+  <Project Path="RailwayTracker.Application/RailwayTracker.Application.csproj" />
+  <Project Path="RailwayTracker.Domain/RailwayTracker.Domain.csproj" />
+  <Project Path="RailwayTracker.Infrastructure/RailwayTracker.Infrastructure.csproj" />
+  <Project Path="RailwayTracker.Tests/RailwayTracker.Tests.csproj" />
+</Solution>
