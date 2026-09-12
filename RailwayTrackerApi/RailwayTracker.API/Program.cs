@@ -15,6 +15,22 @@ builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddScoped<ITrainPositionBroadcaster, TrainPositionBroadcaster>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddOpenApi();
+builder.Services.AddAuthentication("Bearer")
+    .AddJwtBearer("Bearer", options =>
+    {
+        options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = builder.Configuration["Jwt:Issuer"],
+            ValidAudience = builder.Configuration["Jwt:Audience"],
+            IssuerSigningKey = new Microsoft.IdentityModel.Tokens.SymmetricSecurityKey(
+                System.Text.Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!))
+        };
+    });
+builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
@@ -33,6 +49,8 @@ using (var scope = app.Services.CreateScope())
 app.UseDefaultFiles();
 app.UseStaticFiles();
 app.UseHttpsRedirection();
+app.UseAuthentication();
+app.UseAuthorization();
 app.MapControllers();
 app.MapHub<TrainHub>("/hubs/trains");
 app.MapHub<StationHub>("/hubs/stations");
