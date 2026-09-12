@@ -1,9 +1,11 @@
 using RailwayTracker.Infrastructure;
+using RailwayTracker.API.Hubs;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
+builder.Services.AddSignalR();
 builder.Services.AddMediatR(cfg =>
     cfg.RegisterServicesFromAssembly(
         typeof(RailwayTracker.Application.Trains.Queries.GetAllTrains.GetAllTrainsHandler).Assembly));
@@ -21,6 +23,8 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.MapControllers();
+app.MapHub<TrainHub>("/hubs/trains");
+app.MapHub<StationHub>("/hubs/stations");
 app.Run();
 
 public partial class Program { }
