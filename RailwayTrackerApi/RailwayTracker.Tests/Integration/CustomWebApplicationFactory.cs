@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using RailwayTracker.Infrastructure.Persistence;
 
 namespace RailwayTracker.Tests.Integration;
@@ -13,19 +12,23 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
     {
         builder.ConfigureServices(services =>
         {
-            // Remove ALL EF-related registrations
-            var descriptors = services
-                .Where(d => d.ServiceType == typeof(DbContextOptions<AppDbContext>)
-                         || d.ServiceType == typeof(AppDbContext)
-                         || (d.ServiceType.IsGenericType &&
-                             d.ServiceType.GetGenericTypeDefinition() == typeof(DbContextOptions<>)))
+            // Remove every descriptor that references AppDbContext or DbContextOptions
+            var toRemove = services
+                .Where(d =>
+                    d.ServiceType.FullName != null &&
+                    (d.ServiceType == typeof(AppDbContext) ||
+                     d.ServiceType == typeof(DbContextOptions<AppDbContext>) ||
+                     d.ImplementationType?.FullName?.Contains("Npgsql") == true ||
+                     d.ImplementationFactory?.Method.DeclaringType?.FullName?.Contains("Npgsql") == true ||
+                     d.ServiceType.FullName.Contains("Npgsql") ||
+                     d.ServiceType.FullName.Contains("DbContextOptions")))
                 .ToList();
 
-            foreach (var d in descriptors)
+            foreach (var d in toRemove)
                 services.Remove(d);
 
             services.AddDbContext<AppDbContext>(options =>
-                options.UseInMemoryDatabase("RailwayTrackerTestDb_" + Guid.NewGuid()));
+                options.UseInMemoryDatabase("TestDb_" + Guid.NewGuid()));
         });
     }
 }
