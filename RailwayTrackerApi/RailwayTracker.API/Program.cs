@@ -30,6 +30,7 @@ using (var scope = app.Services.CreateScope())
     await RailwayTracker.Infrastructure.Persistence.DataSeeder.SeedAsync(db);
 }
 
+app.UseStaticFiles();
 app.UseHttpsRedirection();
 app.MapControllers();
 app.MapHub<TrainHub>("/hubs/trains");
