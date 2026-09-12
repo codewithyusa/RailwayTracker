@@ -5,38 +5,135 @@
     <meta charset="utf-8" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
-        body { margin: 0; }
-        #map { height: 100vh; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { display: flex; height: 100vh; font-family: Arial, sans-serif; }
+        #map { flex: 2; height: 100vh; }
+        #panel {
+            flex: 1;
+            background: #1a1a2e;
+            color: white;
+            overflow-y: auto;
+            padding: 16px;
+        }
+        #panel h2 { color: #00d4ff; margin-bottom: 12px; }
+        #panel h3 { color: #aaa; font-size: 13px; margin: 16px 0 8px; text-transform: uppercase; }
+        .station-btn {
+            display: block; width: 100%; padding: 10px;
+            margin-bottom: 8px; background: #16213e;
+            border: 1px solid #0f3460; border-radius: 6px;
+            color: white; cursor: pointer; text-align: left;
+            font-size: 14px;
+        }
+        .station-btn:hover, .station-btn.active { background: #0f3460; border-color: #00d4ff; }
+        .arrival-card {
+            background: #16213e; border-radius: 6px;
+            padding: 10px; margin-bottom: 8px;
+            border-left: 3px solid #00d4ff;
+        }
+        .arrival-card .train-name { font-weight: bold; font-size: 14px; }
+        .arrival-card .detail { color: #aaa; font-size: 12px; margin-top: 4px; }
+        .delay { color: #ff6b6b; }
+        .ontime { color: #51cf66; }
+        .announcement-card {
+            background: #16213e; border-radius: 6px;
+            padding: 10px; margin-bottom: 8px;
+            border-left: 3px solid #ffd43b;
+        }
+        .announcement-card .title { font-weight: bold; font-size: 14px; }
+        .announcement-card .body { color: #aaa; font-size: 12px; margin-top: 4px; }
+        #no-arrivals { color: #aaa; font-size: 13px; }
     </style>
 </head>
 <body>
     <div id="map"></div>
+    <div id="panel">
+        <h2>🚆 Railway Tracker</h2>
+        <h3>Stations</h3>
+        <div id="station-list"></div>
+        <h3>Arrivals</h3>
+        <div id="arrivals"><p id="no-arrivals">Select a station</p></div>
+        <h3>Announcements</h3>
+        <div id="announcements"></div>
+    </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.0/signalr.min.js"></script>
     <script>
-        // Init map centered on Addis Ababa
-        const map = L.map('map').setView([9.0192, 38.7525], 8);
-
+        const map = L.map('map').setView([9.0192, 38.7525], 7);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '© OpenStreetMap'
         }).addTo(map);
 
         const trainMarkers = {};
+        const stationMarkers = {};
+        let selectedStation = null;
 
-        // Load all trains on start
+        const trainIcon = L.divIcon({ html: '🚆', className: '', iconSize: [24, 24] });
+        const stationIcon = L.divIcon({ html: '🚉', className: '', iconSize: [24, 24] });
+
+        // Load trains
         fetch('/api/trains')
             .then(r => r.json())
             .then(trains => {
                 trains.forEach(train => {
-                    const marker = L.marker([train.latitude, train.longitude])
+                    const marker = L.marker([train.latitude, train.longitude], { icon: trainIcon })
                         .addTo(map)
                         .bindPopup(`<b>${train.name}</b><br>Code: ${train.code}`);
                     trainMarkers[train.id] = marker;
                 });
             });
 
-        // Connect to SignalR
+        // Load stations
+        fetch('/api/stations')
+            .then(r => r.json())
+            .then(stations => {
+                const list = document.getElementById('station-list');
+                stations.forEach(station => {
+                    // Map marker
+                    const marker = L.marker([station.latitude, station.longitude], { icon: stationIcon })
+                        .addTo(map)
+                        .bindPopup(`<b>${station.name}</b><br>Code: ${station.code}`);
+                    stationMarkers[station.id] = marker;
+
+                    // Panel button
+                    const btn = document.createElement('button');
+                    btn.className = 'station-btn';
+                    btn.textContent = `🚉 ${station.name} (${station.code})`;
+                    btn.onclick = () => selectStation(station, btn);
+                    list.appendChild(btn);
+                });
+            });
+
+        function selectStation(station, btn) {
+            // Clear active
+            document.querySelectorAll('.station-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            selectedStation = station.id;
+
+            // Pan map
+            map.setView([station.latitude, station.longitude], 9);
+
+            // Load arrivals
+            fetch(`/api/stations/${station.id}/arrivals`)
+                .then(r => r.json())
+                .then(arrivals => {
+                    const div = document.getElementById('arrivals');
+                    if (!arrivals || arrivals.length === 0) {
+                        div.innerHTML = '<p id="no-arrivals">No arrivals scheduled</p>';
+                        return;
+                    }
+                    div.innerHTML = arrivals.map(a => `
+                        <div class="arrival-card">
+                            <div class="train-name">Train #${a.trainId}</div>
+                            <div class="detail">Platform ${a.platform}</div>
+                            <div class="detail ${a.delayMinutes > 0 ? 'delay' : 'ontime'}">
+                                ${a.delayMinutes > 0 ? `Delayed ${a.delayMinutes} min` : 'On Time'}
+                            </div>
+                        </div>`).join('');
+                });
+        }
+
+        // SignalR
         const connection = new signalR.HubConnectionBuilder()
             .withUrl('/hubs/trains')
             .withAutomaticReconnect()
@@ -44,14 +141,10 @@
 
         connection.on('PositionUpdated', (data) => {
             const marker = trainMarkers[data.trainId];
-            if (marker) {
-                marker.setLatLng([data.latitude, data.longitude]);
-            }
+            if (marker) marker.setLatLng([data.latitude, data.longitude]);
         });
 
-        // Join all train groups
         connection.start().then(async () => {
-            console.log('SignalR connected');
             const trains = await fetch('/api/trains').then(r => r.json());
             for (const train of trains) {
                 await connection.invoke('JoinTrainGroup', String(train.id));
