@@ -237,6 +237,22 @@
           }
         }
       },
+      "Scalar.AspNetCore/2.17.3": {
+        "type": "package",
+        "compile": {
+          "lib/net10.0/Scalar.AspNetCore.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/net10.0/Scalar.AspNetCore.dll": {
+            "related": ".xml"
+          }
+        },
+        "frameworkReferences": [
+          "Microsoft.AspNetCore.App"
+        ]
+      },
       "RailwayTracker.Application/1.0.0": {
         "type": "project",
         "framework": ".NETCoreApp,Version=v10.0",
@@ -572,6 +588,25 @@
         "postgresql.png"
       ]
     },
+    "Scalar.AspNetCore/2.17.3": {
+      "sha512": "TwAf1zy/MH2famozcDqk9+/jD37VAbonRXfnjAso0Q2YKeWtA0kH59WxhuevvAxWDL3jUU3TDpNmUFS2gF9bHw==",
+      "type": "package",
+      "path": "scalar.aspnetcore/2.17.3",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "README.md",
+        "icon.png",
+        "lib/net10.0/Scalar.AspNetCore.dll",
+        "lib/net10.0/Scalar.AspNetCore.xml",
+        "lib/net8.0/Scalar.AspNetCore.dll",
+        "lib/net8.0/Scalar.AspNetCore.xml",
+        "lib/net9.0/Scalar.AspNetCore.dll",
+        "lib/net9.0/Scalar.AspNetCore.xml",
+        "scalar.aspnetcore.2.17.3.nupkg.sha512",
+        "scalar.aspnetcore.nuspec"
+      ]
+    },
     "RailwayTracker.Application/1.0.0": {
       "type": "project",
       "path": "../RailwayTracker.Application/RailwayTracker.Application.csproj",
@@ -594,7 +629,8 @@
       "Microsoft.AspNetCore.OpenApi >= 10.0.8",
       "Microsoft.AspNetCore.SignalR >= 1.2.13",
       "RailwayTracker.Application >= 1.0.0",
-      "RailwayTracker.Infrastructure >= 1.0.0"
+      "RailwayTracker.Infrastructure >= 1.0.0",
+      "Scalar.AspNetCore >= 2.17.3"
     ]
   },
   "packageFolders": {
@@ -668,6 +704,10 @@
           "Microsoft.AspNetCore.SignalR": {
             "target": "Package",
             "version": "[1.2.13, )"
+          },
+          "Scalar.AspNetCore": {
+            "target": "Package",
+            "version": "[2.17.3, )"
           }
         },
         "imports": [
