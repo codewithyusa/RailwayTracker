@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("RailwayTracker.API")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+3f26cadb4de952e44c54bdc2ad3ddca2cd7833cf")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+26d04ee0f5c26a7e45fee20cfd12fc9eaaf5a4d1")]
 [assembly: System.Reflection.AssemblyProductAttribute("RailwayTracker.API")]
 [assembly: System.Reflection.AssemblyTitleAttribute("RailwayTracker.API")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
