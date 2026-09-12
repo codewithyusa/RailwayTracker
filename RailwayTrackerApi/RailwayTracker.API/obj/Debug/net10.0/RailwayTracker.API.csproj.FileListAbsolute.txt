@@ -50,3 +50,4 @@ C:\Users\SPACE123\Documents\.net\RailwayTracker\RailwayTrackerApi\RailwayTracker
 C:\Users\SPACE123\Documents\.net\RailwayTracker\RailwayTrackerApi\RailwayTracker.API\obj\Debug\net10.0\RailwayTracker.API.genruntimeconfig.cache
 C:\Users\SPACE123\Documents\.net\RailwayTracker\RailwayTrackerApi\RailwayTracker.API\obj\Debug\net10.0\ref\RailwayTracker.API.dll
 C:\Users\SPACE123\Documents\.net\RailwayTracker\RailwayTrackerApi\RailwayTracker.API\obj\Debug\net10.0\RailwayTracker.API.sourcelink.json
+C:\Users\SPACE123\Documents\.net\RailwayTracker\RailwayTrackerApi\RailwayTracker.API\bin\Debug\net10.0\Scalar.AspNetCore.dll

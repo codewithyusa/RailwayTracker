@@ -1366,6 +1366,17 @@
           "lib/net8.0/NSubstitute.dll": {}
         }
       },
+      "Scalar.AspNetCore/2.17.3": {
+        "runtime": {
+          "lib/net10.0/Scalar.AspNetCore.dll": {
+            "assemblyVersion": "2.17.3.0",
+            "fileVersion": "2.17.3.0"
+          }
+        },
+        "compile": {
+          "lib/net10.0/Scalar.AspNetCore.dll": {}
+        }
+      },
       "System.Diagnostics.EventLog/10.0.12": {
         "runtime": {
           "lib/net10.0/System.Diagnostics.EventLog.dll": {
@@ -1453,7 +1464,8 @@
           "MediatR": "14.2.0",
           "Microsoft.AspNetCore.OpenApi": "10.0.8",
           "RailwayTracker.Application": "1.0.0",
-          "RailwayTracker.Infrastructure": "1.0.0"
+          "RailwayTracker.Infrastructure": "1.0.0",
+          "Scalar.AspNetCore": "2.17.3"
         },
         "runtime": {
           "RailwayTracker.API.dll": {
@@ -3567,6 +3579,13 @@
       "sha512": "sha512-05oaAmBAvYYUQb/NTb9/kWBDjq0iS772X4t428WJcHRcH+5ULJx6rTbEvqkZJBIHWRLI8MlU3et3F5/gkEHKIw==",
       "path": "nsubstitute/6.2.0",
       "hashPath": "nsubstitute.6.2.0.nupkg.sha512"
+    },
+    "Scalar.AspNetCore/2.17.3": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-TwAf1zy/MH2famozcDqk9+/jD37VAbonRXfnjAso0Q2YKeWtA0kH59WxhuevvAxWDL3jUU3TDpNmUFS2gF9bHw==",
+      "path": "scalar.aspnetcore/2.17.3",
+      "hashPath": "scalar.aspnetcore.2.17.3.nupkg.sha512"
     },
     "System.Diagnostics.EventLog/10.0.12": {
       "type": "package",

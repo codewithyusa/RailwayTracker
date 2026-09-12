@@ -13,11 +13,19 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
     {
         builder.ConfigureServices(services =>
         {
-            services.RemoveAll<DbContextOptions<AppDbContext>>();
-            services.RemoveAll<AppDbContext>();
+            // Remove ALL EF-related registrations
+            var descriptors = services
+                .Where(d => d.ServiceType == typeof(DbContextOptions<AppDbContext>)
+                         || d.ServiceType == typeof(AppDbContext)
+                         || (d.ServiceType.IsGenericType &&
+                             d.ServiceType.GetGenericTypeDefinition() == typeof(DbContextOptions<>)))
+                .ToList();
+
+            foreach (var d in descriptors)
+                services.Remove(d);
 
             services.AddDbContext<AppDbContext>(options =>
-                options.UseInMemoryDatabase("RailwayTrackerTestDb"));
+                options.UseInMemoryDatabase("RailwayTrackerTestDb_" + Guid.NewGuid()));
         });
     }
 }
