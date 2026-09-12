@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Railway Tracker</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        body { margin: 0; }
+        #map { height: 100vh; }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.0/signalr.min.js"></script>
+    <script>
+        // Init map centered on Addis Ababa
+        const map = L.map('map').setView([9.0192, 38.7525], 8);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap'
+        }).addTo(map);
+
+        const trainMarkers = {};
+
+        // Load all trains on start
+        fetch('/api/trains')
+            .then(r => r.json())
+            .then(trains => {
+                trains.forEach(train => {
+                    const marker = L.marker([train.latitude, train.longitude])
+                        .addTo(map)
+                        .bindPopup(`<b>${train.name}</b><br>Code: ${train.code}`);
+                    trainMarkers[train.id] = marker;
+                });
+            });
+
+        // Connect to SignalR
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl('/hubs/trains')
+            .withAutomaticReconnect()
+            .build();
+
+        connection.on('PositionUpdated', (data) => {
+            const marker = trainMarkers[data.trainId];
+            if (marker) {
+                marker.setLatLng([data.latitude, data.longitude]);
+            }
+        });
+
+        // Join all train groups
+        connection.start().then(async () => {
+            console.log('SignalR connected');
+            const trains = await fetch('/api/trains').then(r => r.json());
+            for (const train of trains) {
+                await connection.invoke('JoinTrainGroup', String(train.id));
+            }
+        });
+    </script>
+</body>
+</html>
