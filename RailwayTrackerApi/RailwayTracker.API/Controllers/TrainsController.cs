@@ -1,4 +1,5 @@
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RailwayTracker.Application.Trains.Queries.GetAllTrains;
 using RailwayTracker.Application.Trains.Queries.GetTrainById;
@@ -29,6 +30,7 @@ public class TrainsController : ControllerBase
     }
 
     [HttpPut("{id}/position")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> UpdatePosition(int id, [FromBody] UpdatePositionRequest request, CancellationToken ct)
     {
         var result = await _mediator.Send(new UpdateTrainPositionCommand(id, request.Latitude, request.Longitude), ct);
