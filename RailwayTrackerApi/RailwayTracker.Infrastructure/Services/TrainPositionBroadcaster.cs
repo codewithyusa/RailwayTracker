@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.SignalR;
 using RailwayTracker.API.Hubs;
 using RailwayTracker.Application.Common.Interfaces;
 
-namespace RailwayTracker.Infrastructure.Services;
+namespace RailwayTracker.API.Services;
 
 public class TrainPositionBroadcaster : ITrainPositionBroadcaster
 {
