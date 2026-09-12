@@ -1,13 +1,12 @@
 using Microsoft.AspNetCore.SignalR;
-using RailwayTracker.API.Hubs;
 using RailwayTracker.Application.Common.Interfaces;
 
-namespace RailwayTracker.API.Services;
+namespace RailwayTracker.Infrastructure.Services;
 
 public class TrainPositionBroadcaster : ITrainPositionBroadcaster
 {
-    private readonly IHubContext<TrainHub> _hub;
-    public TrainPositionBroadcaster(IHubContext<TrainHub> hub) => _hub = hub;
+    private readonly IHubContext<Hub> _hub;
+    public TrainPositionBroadcaster(IHubContext<Hub> hub) => _hub = hub;
 
     public async Task BroadcastAsync(int trainId, double latitude, double longitude, CancellationToken ct)
     {
