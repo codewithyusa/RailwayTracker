@@ -11,10 +11,11 @@ public class UpdateTrainPositionHandlerTests
     public async Task Handle_TrainNotFound_ReturnsFailure()
     {
         var repo = Substitute.For<ITrainRepository>();
+        var broadcaster = Substitute.For<ITrainPositionBroadcaster>();
         repo.GetByIdAsync(99, Arg.Any<CancellationToken>())
             .Returns((Train?)null);
 
-        var handler = new UpdateTrainPositionHandler(repo);
+        var handler = new UpdateTrainPositionHandler(repo, broadcaster);
         var result = await handler.Handle(
             new UpdateTrainPositionCommand(99, 9.0, 38.0), CancellationToken.None);
 
@@ -30,12 +31,13 @@ public class UpdateTrainPositionHandlerTests
     public async Task Handle_TrainExists_UpdatesPositionOnce()
     {
         var repo = Substitute.For<ITrainRepository>();
+        var broadcaster = Substitute.For<ITrainPositionBroadcaster>();
         var train = new Train { Id = 1, Code = "T-01", Name = "Express" };
 
         repo.GetByIdAsync(1, Arg.Any<CancellationToken>())
             .Returns(train);
 
-        var handler = new UpdateTrainPositionHandler(repo);
+        var handler = new UpdateTrainPositionHandler(repo, broadcaster);
         var result = await handler.Handle(
             new UpdateTrainPositionCommand(1, 9.0, 38.0), CancellationToken.None);
 
