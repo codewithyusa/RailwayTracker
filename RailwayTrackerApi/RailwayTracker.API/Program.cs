@@ -24,6 +24,12 @@ if (app.Environment.IsDevelopment())
     app.MapScalarApiReference();
 }
 
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<RailwayTracker.Infrastructure.Persistence.AppDbContext>();
+    await RailwayTracker.Infrastructure.Persistence.DataSeeder.SeedAsync(db);
+}
+
 app.UseHttpsRedirection();
 app.MapControllers();
 app.MapHub<TrainHub>("/hubs/trains");
