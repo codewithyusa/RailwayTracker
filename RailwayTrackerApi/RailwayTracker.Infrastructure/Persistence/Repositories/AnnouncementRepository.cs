@@ -9,6 +9,11 @@ public class AnnouncementRepository : IAnnouncementRepository
     private readonly AppDbContext _db;
     public AnnouncementRepository(AppDbContext db) => _db = db;
 
+    public async Task<IEnumerable<Announcement>> GetAllAsync(CancellationToken ct = default) =>
+        await _db.Announcements
+            .OrderByDescending(a => a.CreatedAt)
+            .ToListAsync(ct);
+
     public async Task<IEnumerable<Announcement>> GetByStationAsync(int stationId, CancellationToken ct = default) =>
         await _db.Announcements
             .Where(a => a.StationId == stationId)
