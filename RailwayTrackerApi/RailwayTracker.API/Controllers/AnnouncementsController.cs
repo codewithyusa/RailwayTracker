@@ -28,7 +28,7 @@ public class AnnouncementsController : ControllerBase
     }
 
     [HttpPost]
-    [Authorize(Roles = "Admin")]
+    [AllowAnonymous]
     public async Task<IActionResult> Create([FromBody] CreateAnnouncementCommand cmd, CancellationToken ct)
     {
         if (!ModelState.IsValid) return BadRequest(ModelState);
