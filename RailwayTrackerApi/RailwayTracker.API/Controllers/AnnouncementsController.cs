@@ -29,7 +29,7 @@ public class AnnouncementsController : ControllerBase
 
     [HttpPost]
     [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> Create(CreateAnnouncementCommand cmd, CancellationToken ct)
+    public async Task<IActionResult> Create([FromBody] CreateAnnouncementCommand cmd, CancellationToken ct)
     {
         if (!ModelState.IsValid) return BadRequest(ModelState);
         var result = await _mediator.Send(cmd, ct);

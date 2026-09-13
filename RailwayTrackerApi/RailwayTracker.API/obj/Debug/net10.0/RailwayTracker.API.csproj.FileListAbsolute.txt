@@ -136,9 +136,9 @@ C:\Users\SPACE123\Documents\.net\RailwayTracker\RailwayTrackerApi\RailwayTracker
 C:\Users\SPACE123\Documents\.net\RailwayTracker\RailwayTrackerApi\RailwayTracker.API\bin\Debug\net10.0\zh-Hans\Microsoft.CodeAnalysis.Workspaces.MSBuild.resources.dll
 C:\Users\SPACE123\Documents\.net\RailwayTracker\RailwayTrackerApi\RailwayTracker.API\bin\Debug\net10.0\zh-Hant\Microsoft.CodeAnalysis.Workspaces.MSBuild.resources.dll
 C:\Users\SPACE123\Documents\.net\RailwayTracker\RailwayTrackerApi\RailwayTracker.API\bin\Debug\net10.0\RailwayTracker.API.staticwebassets.runtime.json
-C:\Users\SPACE123\Documents\.net\RailwayTracker\RailwayTrackerApi\RailwayTracker.API\obj\Debug\net10.0\compressed\btc5ouq73j-{0}-yj9otjh3sh-yj9otjh3sh.gz
 C:\Users\SPACE123\Documents\.net\RailwayTracker\RailwayTrackerApi\RailwayTracker.API\bin\Debug\net10.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
 C:\Users\SPACE123\Documents\.net\RailwayTracker\RailwayTrackerApi\RailwayTracker.API\bin\Debug\net10.0\Microsoft.Bcl.Cryptography.dll
 C:\Users\SPACE123\Documents\.net\RailwayTracker\RailwayTrackerApi\RailwayTracker.API\bin\Debug\net10.0\Microsoft.IdentityModel.Protocols.dll
 C:\Users\SPACE123\Documents\.net\RailwayTracker\RailwayTrackerApi\RailwayTracker.API\bin\Debug\net10.0\Microsoft.IdentityModel.Protocols.OpenIdConnect.dll
 C:\Users\SPACE123\Documents\.net\RailwayTracker\RailwayTrackerApi\RailwayTracker.API\bin\Debug\net10.0\System.IdentityModel.Tokens.Jwt.dll
+C:\Users\SPACE123\Documents\.net\RailwayTracker\RailwayTrackerApi\RailwayTracker.API\obj\Debug\net10.0\compressed\btc5ouq73j-{0}-hs4yegtgp2-hs4yegtgp2.gz
