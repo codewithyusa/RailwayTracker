@@ -1,26 +1,30 @@
-version: '3.8'
-
+ 
 services:
   api:
-    build: .
+    build:
+      context: .
+      dockerfile: RailwayTracker.API/Dockerfile
     ports:
       - "8080:8080"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__DefaultConnection=Host=db;Port=5432;Database=RailwayTrackerDb;Username=postgres;Password=1234
+      - ConnectionStrings__DefaultConnection=Host=db;Database=railwaytracker;Username=postgres;Password=postgres
+      - Jwt__Key=YourSuperSecretKeyHereMakeItLong32Chars!
+      - Jwt__Issuer=RailwayTrackerAPI
+      - Jwt__Audience=RailwayTrackerClient
     depends_on:
       - db
 
   db:
     image: postgres:16
     environment:
-      POSTGRES_DB: RailwayTrackerDb
+      POSTGRES_DB: railwaytracker
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: 1234
+      POSTGRES_PASSWORD: postgres
     ports:
-      - "5433:5432"
+      - "5432:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - pgdata:/var/lib/postgresql/data
 
 volumes:
-  postgres_data:
+  pgdata:
