@@ -121,6 +121,12 @@
                         btn.onclick = () => selectStation(station, btn);
                         list.appendChild(btn);
                     });
+
+                    // Join all station groups for live announcements
+                    stations.forEach(station => {
+                        stationConnection.invoke('JoinStationGroup', String(station.id))
+                            .catch(err => console.error(err));
+                    });
                 });
         }
 
@@ -165,7 +171,7 @@
                 });
         }
 
-        // SignalR
+        // Train SignalR
         const connection = new signalR.HubConnectionBuilder()
             .withUrl('/hubs/trains')
             .withAutomaticReconnect()
@@ -182,6 +188,26 @@
                 await connection.invoke('JoinTrainGroup', String(train.id));
             }
         });
+
+        // Station SignalR — live announcements
+        const stationConnection = new signalR.HubConnectionBuilder()
+            .withUrl('/hubs/stations')
+            .withAutomaticReconnect()
+            .build();
+
+        stationConnection.on('NewAnnouncement', (a) => {
+            if (a.stationId !== selectedStation) return;
+            const div = document.getElementById('announcements');
+            const card = `
+                <div class="announcement-card">
+                    <div class="title">📢 ${a.title}</div>
+                    <div class="body">${a.body}</div>
+                    <div class="body" style="color:#555;font-size:11px">${new Date(a.createdAt).toLocaleTimeString()}</div>
+                </div>`;
+            div.innerHTML = card + div.innerHTML;
+        });
+
+        stationConnection.start();
     </script>
 </body>
 </html>
