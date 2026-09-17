@@ -7,6 +7,7 @@ public class AppDbContext : DbContext
 {
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
+    public DbSet<Line> Lines => Set<Line>();
     public DbSet<Train> Trains => Set<Train>();
     public DbSet<Station> Stations => Set<Station>();
     public DbSet<Arrival> Arrivals => Set<Arrival>();
@@ -15,6 +16,15 @@ public class AppDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<Line>(e =>
+        {
+            e.HasKey(l => l.Id);
+            e.Property(l => l.Name).IsRequired().HasMaxLength(100);
+            e.Property(l => l.Color).IsRequired().HasMaxLength(20);
+            e.HasMany(l => l.Stations).WithOne(s => s.Line).HasForeignKey(s => s.LineId).OnDelete(DeleteBehavior.Restrict);
+            e.HasMany(l => l.Trains).WithOne(t => t.Line).HasForeignKey(t => t.LineId).OnDelete(DeleteBehavior.Restrict);
+        });
+
         modelBuilder.Entity<Train>(e =>
         {
             e.HasKey(t => t.Id);
@@ -31,7 +41,6 @@ public class AppDbContext : DbContext
             e.HasKey(s => s.Id);
             e.Property(s => s.Name).IsRequired().HasMaxLength(100);
             e.Property(s => s.Code).IsRequired().HasMaxLength(10);
-            e.HasIndex(s => s.Code).IsUnique();
             e.HasMany(s => s.Arrivals).WithOne(a => a.Station).HasForeignKey(a => a.StationId).OnDelete(DeleteBehavior.Restrict);
             e.HasMany(s => s.Announcements).WithOne(a => a.Station).HasForeignKey(a => a.StationId).OnDelete(DeleteBehavior.Cascade);
         });

@@ -8,4 +8,5 @@ public class Line
     public string TerminusA { get; set; } = string.Empty;
     public string TerminusB { get; set; } = string.Empty;
     public ICollection<Station> Stations { get; set; } = new List<Station>();
+    public ICollection<Train> Trains { get; set; } = new List<Train>();
 }
