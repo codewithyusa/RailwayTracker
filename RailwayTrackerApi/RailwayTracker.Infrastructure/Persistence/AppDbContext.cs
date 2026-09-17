@@ -42,7 +42,7 @@ public class AppDbContext : DbContext
             e.Property(s => s.Name).IsRequired().HasMaxLength(100);
             e.Property(s => s.Code).IsRequired().HasMaxLength(10);
             e.HasMany(s => s.Arrivals).WithOne(a => a.Station).HasForeignKey(a => a.StationId).OnDelete(DeleteBehavior.Restrict);
-            e.HasMany(s => s.Announcements).WithOne(a => a.Station).HasForeignKey(a => a.StationId).OnDelete(DeleteBehavior.Cascade);
+            e.HasMany(s => s.Announcements).WithOne(a => a.Station).HasForeignKey(a => a.StationId).IsRequired(false).OnDelete(DeleteBehavior.Cascade);
         });
 
         modelBuilder.Entity<Arrival>(e =>
@@ -68,6 +68,10 @@ public class AppDbContext : DbContext
             e.Property(a => a.Body).IsRequired().HasMaxLength(1000);
             e.Property(a => a.Type).HasConversion<string>();
             e.Property(a => a.CreatedAt).IsRequired();
+            e.HasOne(a => a.Station).WithMany(s => s.Announcements)
+                .HasForeignKey(a => a.StationId)
+                .IsRequired(false)
+                .OnDelete(DeleteBehavior.Cascade);
         });
     }
 }
