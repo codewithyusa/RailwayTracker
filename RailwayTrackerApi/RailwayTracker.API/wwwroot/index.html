@@ -1,213 +1,317 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Railway Tracker</title>
-    <meta charset="utf-8" />
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { display: flex; height: 100vh; font-family: Arial, sans-serif; }
-        #map { flex: 2; height: 100vh; }
-        #panel { flex: 1; background: #1a1a2e; color: white; overflow-y: auto; padding: 16px; }
-        #panel h2 { color: #00d4ff; margin-bottom: 12px; }
-        #panel h3 { color: #aaa; font-size: 13px; margin: 16px 0 8px; text-transform: uppercase; }
-        input { width:100%; padding:8px; margin-bottom:8px; background:#16213e; color:white; border:1px solid #0f3460; border-radius:4px; }
-        .login-btn { width:100%; padding:8px; background:#00d4ff; color:#000; border:none; border-radius:4px; cursor:pointer; font-weight:bold; }
-        .station-btn { display:block; width:100%; padding:10px; margin-bottom:8px; background:#16213e; border:1px solid #0f3460; border-radius:6px; color:white; cursor:pointer; text-align:left; font-size:14px; }
-        .station-btn:hover, .station-btn.active { background:#0f3460; border-color:#00d4ff; }
-        .arrival-card { background:#16213e; border-radius:6px; padding:10px; margin-bottom:8px; border-left:3px solid #00d4ff; }
-        .arrival-card .train-name { font-weight:bold; font-size:14px; }
-        .arrival-card .detail { color:#aaa; font-size:12px; margin-top:4px; }
-        .delay { color:#ff6b6b; }
-        .ontime { color:#51cf66; }
-        .announcement-card { background:#16213e; border-radius:6px; padding:10px; margin-bottom:8px; border-left:3px solid #ffd43b; }
-        .announcement-card .title { font-weight:bold; font-size:14px; }
-        .announcement-card .body { color:#aaa; font-size:12px; margin-top:4px; }
-    </style>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Addis Ababa Light Rail</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:system-ui,sans-serif;background:#0a0f1e;color:#e2e8f0;height:100vh;display:flex;flex-direction:column}
+.header{background:#111827;border-bottom:1px solid #1e293b;padding:10px 20px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.header-left{display:flex;align-items:center;gap:12px}
+.header-title{font-size:16px;font-weight:600;color:#fff}
+.header-sub{font-size:11px;color:#64748b;margin-top:2px}
+.clock{font-size:20px;font-weight:500;color:#fbbf24;font-variant-numeric:tabular-nums}
+.tabs{display:flex;background:#0f172a;border-bottom:1px solid #1e293b;flex-shrink:0}
+.tab{flex:1;padding:9px;text-align:center;cursor:pointer;font-size:12px;font-weight:500;color:#64748b;border-bottom:3px solid transparent;transition:all .2s}
+.tab.active-green{color:#4ade80;border-color:#4ade80;background:#0a1f12}
+.tab.active-blue{color:#60a5fa;border-color:#60a5fa;background:#0a1525}
+.tab.active-common{color:#f87171;border-color:#f87171;background:#1f0a0a}
+.tab:hover:not(.active-green):not(.active-blue):not(.active-common){color:#cbd5e1;background:#1e293b}
+.main{display:flex;flex:1;overflow:hidden}
+.sidebar{width:200px;background:#0f172a;border-right:1px solid #1e293b;overflow-y:auto;flex-shrink:0}
+.station-btn{width:100%;padding:9px 12px;background:none;border:none;border-bottom:1px solid #1e293b;color:#94a3b8;font-size:12px;text-align:left;cursor:pointer;display:flex;align-items:center;gap:8px;transition:background .15s}
+.station-btn:hover{background:#1e293b;color:#e2e8f0}
+.station-btn.active{background:#1e293b;color:#fff;font-weight:500}
+.dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.map-panel{flex:1;position:relative}
+#map{width:100%;height:100%}
+.info-panel{width:280px;background:#0f172a;border-left:1px solid #1e293b;overflow-y:auto;flex-shrink:0;display:flex;flex-direction:column}
+.info-header{padding:12px 14px;border-bottom:1px solid #1e293b;background:#111827}
+.info-station{font-size:14px;font-weight:600;color:#fff}
+.info-line{font-size:11px;color:#64748b;margin-top:2px}
+.section-title{font-size:10px;font-weight:500;letter-spacing:1px;color:#475569;text-transform:uppercase;padding:10px 14px 4px}
+.departure-card{margin:0 10px 6px;background:#111827;border:1px solid #1e293b;border-radius:8px;padding:10px 12px}
+.dep-dest{font-size:13px;font-weight:500;color:#e2e8f0}
+.dep-via{font-size:11px;color:#64748b;margin-top:2px}
+.dep-row{display:flex;justify-content:space-between;align-items:center;margin-top:6px}
+.dep-time{font-size:13px;font-weight:500;color:#fbbf24}
+.dep-status{font-size:11px;font-weight:500}
+.status-on{color:#4ade80}
+.status-delay{color:#fb923c}
+.status-cancelled{color:#f87171}
+.announce-card{margin:0 10px 6px;background:#1a1000;border:1px solid #78350f;border-radius:8px;padding:10px 12px}
+.announce-title{font-size:12px;font-weight:500;color:#fbbf24}
+.announce-body{font-size:11px;color:#d97706;margin-top:3px}
+.no-data{padding:16px 14px;font-size:12px;color:#475569;text-align:center}
+.train-marker{background:transparent;border:none}
+.legend{position:absolute;bottom:20px;left:10px;background:#111827;border:1px solid #1e293b;border-radius:8px;padding:10px 14px;z-index:1000;font-size:11px}
+.legend-item{display:flex;align-items:center;gap:8px;margin-bottom:4px;color:#94a3b8}
+.legend-item:last-child{margin-bottom:0}
+.legend-line{width:20px;height:3px;border-radius:2px}
+</style>
 </head>
 <body>
-    <div id="map"></div>
-    <div id="panel">
-        <h2>🚆 Railway Tracker</h2>
 
-        <div id="login-section">
-            <h3>Login</h3>
-            <input id="username" type="text" placeholder="Username" value="admin" />
-            <input id="password" type="password" placeholder="Password" value="admin123" />
-            <button class="login-btn" onclick="login()">Login</button>
-            <p id="login-error" style="color:#ff6b6b;font-size:12px;margin-top:6px"></p>
-        </div>
-
-        <div id="main-section" style="display:none">
-            <p style="color:#51cf66;font-size:12px;margin-bottom:8px">✅ Logged in as Admin</p>
-            <h3>Stations</h3>
-            <div id="station-list"></div>
-            <h3>Arrivals</h3>
-            <div id="arrivals"><p style="color:#aaa;font-size:13px">Select a station</p></div>
-            <h3>Announcements</h3>
-            <div id="announcements"></div>
-        </div>
+<div class="header">
+  <div class="header-left">
+    <div>
+      <div class="header-title">🚊 Addis Ababa Light Rail</div>
+      <div class="header-sub">Ethiopian Railways Corporation · Live Passenger Display</div>
     </div>
+  </div>
+  <div class="clock" id="clk">--:--:--</div>
+</div>
 
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.0/signalr.min.js"></script>
-    <script>
-        const map = L.map('map').setView([9.0192, 38.7525], 7);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap'
-        }).addTo(map);
+<div class="tabs" id="tabs"></div>
 
-        const trainMarkers = {};
-        const stationMarkers = {};
-        let selectedStation = null;
-        let authToken = null;
+<div class="main">
+  <div class="sidebar" id="sidebar"></div>
+  <div class="map-panel">
+    <div id="map"></div>
+    <div class="legend">
+      <div class="legend-item"><div class="legend-line" style="background:#4ade80"></div>Green Line</div>
+      <div class="legend-item"><div class="legend-line" style="background:#60a5fa"></div>Blue Line</div>
+      <div class="legend-item"><div class="legend-line" style="background:#f87171"></div>Common Section</div>
+    </div>
+  </div>
+  <div class="info-panel" id="info-panel">
+    <div class="no-data">Select a station to see departures</div>
+  </div>
+</div>
 
-        const trainIcon = L.divIcon({ html: '🚆', className: '', iconSize: [24, 24] });
-        const stationIcon = L.divIcon({ html: '🚉', className: '', iconSize: [24, 24] });
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+const LINE_COLORS = { 1: '#4ade80', 2: '#60a5fa', 3: '#f87171' };
+const LINE_TABS   = { 1: 'active-green', 2: 'active-blue', 3: 'active-common' };
+const LINE_DOTS   = { 1: 'dot-green', 2: 'dot-blue', 3: 'dot-red' };
 
-        function login() {
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
+let lines = [], currentLine = 1, selectedStation = null;
+let map, stationMarkers = {}, trainMarkers = [], polylines = [];
 
-            fetch('/api/auth/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username, password })
-            })
-            .then(r => r.json())
-            .then(data => {
-                if (data.token) {
-                    authToken = data.token;
-                    document.getElementById('login-section').style.display = 'none';
-                    document.getElementById('main-section').style.display = 'block';
-                    loadTrains();
-                    loadStations();
-                } else {
-                    document.getElementById('login-error').textContent = 'Invalid credentials';
-                }
-            })
-            .catch(() => {
-                document.getElementById('login-error').textContent = 'Login failed';
-            });
-        }
+// Clock
+function tick() {
+  const n = new Date();
+  document.getElementById('clk').textContent =
+    String(n.getHours()).padStart(2,'0') + ':' +
+    String(n.getMinutes()).padStart(2,'0') + ':' +
+    String(n.getSeconds()).padStart(2,'0');
+}
+tick(); setInterval(tick, 1000);
 
-        function loadTrains() {
-            fetch('/api/trains')
-                .then(r => r.json())
-                .then(trains => {
-                    trains.forEach(train => {
-                        const marker = L.marker([train.latitude, train.longitude], { icon: trainIcon })
-                            .addTo(map)
-                            .bindPopup(`<b>${train.name}</b><br>Code: ${train.code}`);
-                        trainMarkers[train.id] = marker;
-                    });
-                });
-        }
+// Map
+map = L.map('map', { center: [9.005, 38.76], zoom: 13 });
+L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+  attribution: '© OpenStreetMap © CARTO', maxZoom: 19
+}).addTo(map);
 
-        function loadStations() {
-            fetch('/api/stations')
-                .then(r => r.json())
-                .then(stations => {
-                    const list = document.getElementById('station-list');
-                    stations.forEach(station => {
-                        const marker = L.marker([station.latitude, station.longitude], { icon: stationIcon })
-                            .addTo(map)
-                            .bindPopup(`<b>${station.name}</b><br>Code: ${station.code}`);
-                        stationMarkers[station.id] = marker;
+// Load data
+async function loadLines() {
+  const res = await fetch('/api/lines');
+  lines = await res.json();
+  renderTabs();
+  renderSidebar();
+  renderMap();
+}
 
-                        const btn = document.createElement('button');
-                        btn.className = 'station-btn';
-                        btn.textContent = `🚉 ${station.name} (${station.code})`;
-                        btn.onclick = () => selectStation(station, btn);
-                        list.appendChild(btn);
-                    });
+async function loadTrains() {
+  const res = await fetch('/api/trains');
+  const trains = await res.json();
+  trainMarkers.forEach(m => map.removeLayer(m));
+  trainMarkers = [];
+  trains.filter(t => t.isActive).forEach(t => {
+    const color = LINE_COLORS[t.lineId] || '#fff';
+    const icon = L.divIcon({
+      className: 'train-marker',
+      html: `<div style="background:${color};width:14px;height:14px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 6px ${color}"></div>`,
+      iconSize: [14, 14], iconAnchor: [7, 7]
+    });
+    const m = L.marker([t.latitude, t.longitude], { icon })
+      .bindPopup(`<b>${t.code}</b> — ${t.name}<br>Status: ${['On Time','Delayed','Cancelled','Arrived'][t.status] || t.status}`);
+    m.addTo(map);
+    trainMarkers.push(m);
+  });
+}
 
-                    // Join all station groups for live announcements
-                    stations.forEach(station => {
-                        stationConnection.invoke('JoinStationGroup', String(station.id))
-                            .catch(err => console.error(err));
-                    });
-                });
-        }
+function renderTabs() {
+  const el = document.getElementById('tabs');
+  el.innerHTML = lines.map(l => `
+    <div class="tab ${l.id === currentLine ? LINE_TABS[l.id] : ''}"
+         onclick="switchLine(${l.id})">
+      ${l.id===1?'🟢':l.id===2?'🔵':'🔴'} ${l.name}
+    </div>`).join('');
+}
 
-        function selectStation(station, btn) {
-            document.querySelectorAll('.station-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            selectedStation = station.id;
-            map.setView([station.latitude, station.longitude], 9);
+function renderSidebar() {
+  const line = lines.find(l => l.id === currentLine);
+  if (!line) return;
+  const el = document.getElementById('sidebar');
+  el.innerHTML = line.stations.map(s => `
+    <button class="station-btn ${selectedStation?.id === s.id ? 'active' : ''}"
+            onclick="selectStation(${s.id})">
+      <div class="dot" style="background:${LINE_COLORS[currentLine]}"></div>
+      ${s.name}
+    </button>`).join('');
+}
 
-            fetch(`/api/stations/${station.id}/arrivals`)
-                .then(r => r.json())
-                .then(arrivals => {
-                    const div = document.getElementById('arrivals');
-                    if (!arrivals || arrivals.length === 0) {
-                        div.innerHTML = '<p style="color:#aaa;font-size:13px">No arrivals scheduled</p>';
-                        return;
-                    }
-                    div.innerHTML = arrivals.map(a => `
-                        <div class="arrival-card">
-                            <div class="train-name">Train #${a.trainId}</div>
-                            <div class="detail">Platform ${a.platform}</div>
-                            <div class="detail ${a.delayMinutes > 0 ? 'delay' : 'ontime'}">
-                                ${a.delayMinutes > 0 ? `Delayed ${a.delayMinutes} min` : 'On Time'}
-                            </div>
-                        </div>`).join('');
-                });
+function renderMap() {
+  // Clear old polylines and markers
+  polylines.forEach(p => map.removeLayer(p));
+  polylines = [];
+  Object.values(stationMarkers).forEach(m => map.removeLayer(m));
+  stationMarkers = {};
 
-            fetch(`/api/announcements/station/${station.id}`)
-                .then(r => r.json())
-                .then(announcements => {
-                    const div = document.getElementById('announcements');
-                    if (!announcements || announcements.length === 0) {
-                        div.innerHTML = '<p style="color:#aaa;font-size:13px">No announcements</p>';
-                        return;
-                    }
-                    div.innerHTML = announcements.map(a => `
-                        <div class="announcement-card">
-                            <div class="title">📢 ${a.title}</div>
-                            <div class="body">${a.body}</div>
-                            <div class="body" style="color:#555;font-size:11px">${new Date(a.createdAt).toLocaleTimeString()}</div>
-                        </div>`).join('');
-                });
-        }
-
-        // Train SignalR
-        const connection = new signalR.HubConnectionBuilder()
-            .withUrl('/hubs/trains')
-            .withAutomaticReconnect()
-            .build();
-
-        connection.on('PositionUpdated', (data) => {
-            const marker = trainMarkers[data.trainId];
-            if (marker) marker.setLatLng([data.latitude, data.longitude]);
+  lines.forEach(line => {
+    const color = LINE_COLORS[line.id];
+    const coords = line.stations.map(s => [s.latitude, s.longitude]);
+    if (coords.length > 1) {
+      const pl = L.polyline(coords, { color, weight: 4, opacity: 0.8 }).addTo(map);
+      polylines.push(pl);
+    }
+    line.stations.forEach(s => {
+      const icon = L.circleMarker([s.latitude, s.longitude], {
+        radius: 6, fillColor: color, color: '#fff',
+        weight: 2, opacity: 1, fillOpacity: 1
+      }).bindTooltip(s.name, { permanent: false, direction: 'top' })
+        .on('click', () => {
+          switchLine(line.id);
+          selectStation(s.id);
         });
+      icon.addTo(map);
+      stationMarkers[s.id] = icon;
+    });
+  });
+}
 
-        connection.start().then(async () => {
-            const trains = await fetch('/api/trains').then(r => r.json());
-            for (const train of trains) {
-                await connection.invoke('JoinTrainGroup', String(train.id));
-            }
-        });
+function switchLine(lineId) {
+  currentLine = lineId;
+  selectedStation = null;
+  renderTabs();
+  renderSidebar();
+  document.getElementById('info-panel').innerHTML =
+    '<div class="no-data">Select a station to see departures</div>';
+  const line = lines.find(l => l.id === lineId);
+  if (line?.stations?.length) {
+    const s = line.stations[0];
+    map.setView([s.latitude, s.longitude], 14);
+  }
+}
 
-        // Station SignalR — live announcements
-        const stationConnection = new signalR.HubConnectionBuilder()
-            .withUrl('/hubs/stations')
-            .withAutomaticReconnect()
-            .build();
+async function selectStation(stationId) {
+  const line = lines.find(l => l.id === currentLine);
+  selectedStation = line?.stations?.find(s => s.id === stationId) ||
+    lines.flatMap(l => l.stations).find(s => s.id === stationId);
 
-        stationConnection.on('NewAnnouncement', (a) => {
-            if (a.stationId !== selectedStation) return;
-            const div = document.getElementById('announcements');
-            const card = `
-                <div class="announcement-card">
-                    <div class="title">📢 ${a.title}</div>
-                    <div class="body">${a.body}</div>
-                    <div class="body" style="color:#555;font-size:11px">${new Date(a.createdAt).toLocaleTimeString()}</div>
-                </div>`;
-            div.innerHTML = card + div.innerHTML;
-        });
+  // Find which line this station belongs to
+  for (const l of lines) {
+    const found = l.stations.find(s => s.id === stationId);
+    if (found) { currentLine = l.id; selectedStation = found; break; }
+  }
 
-        stationConnection.start();
-    </script>
+  renderTabs();
+  renderSidebar();
+
+  if (selectedStation) {
+    map.setView([selectedStation.latitude, selectedStation.longitude], 15);
+  }
+
+  // Fetch arrivals
+  let arrivals = [];
+  try {
+    const res = await fetch(`/api/stations/${stationId}/arrivals`);
+    if (res.ok) arrivals = await res.json();
+  } catch {}
+
+  // Fetch announcements
+  let announcements = [];
+  try {
+    const res = await fetch(`/api/announcements/station/${stationId}`);
+    if (res.ok) announcements = await res.json();
+  } catch {}
+
+  // Also get global announcements
+  try {
+    const res = await fetch('/api/announcements');
+    if (res.ok) {
+      const all = await res.json();
+      const global = all.filter(a => !a.stationId);
+      announcements = [...announcements, ...global];
+    }
+  } catch {}
+
+  renderInfoPanel(arrivals, announcements);
+}
+
+function renderInfoPanel(arrivals, announcements) {
+  const line = lines.find(l => l.id === currentLine);
+  const color = LINE_COLORS[currentLine];
+
+  let html = `
+    <div class="info-header">
+      <div class="info-station">${selectedStation?.name || 'Station'}</div>
+      <div class="info-line" style="color:${color}">${line?.name || ''} · ${line?.terminusA} ↔ ${line?.terminusB}</div>
+    </div>`;
+
+  // Departures
+  html += `<div class="section-title">Departures</div>`;
+  if (arrivals.length === 0) {
+    // Show simulated departures based on line
+    const now = new Date();
+    const sims = [
+      { dest: line?.terminusB, via: 'Common Section', mins: 3, delay: false },
+      { dest: line?.terminusB, via: 'Common Section', mins: 18, delay: false },
+      { dest: line?.terminusA, via: 'Common Section', mins: 7, delay: true },
+      { dest: line?.terminusA, via: 'Common Section', mins: 22, delay: false },
+    ];
+    sims.forEach(d => {
+      html += `
+        <div class="departure-card">
+          <div class="dep-dest">${d.dest}</div>
+          <div class="dep-via">via ${d.via}</div>
+          <div class="dep-row">
+            <div class="dep-time">+${d.mins} min</div>
+            <div class="dep-status ${d.delay ? 'status-delay' : 'status-on'}">${d.delay ? 'Delayed' : 'On time'}</div>
+          </div>
+        </div>`;
+    });
+  } else {
+    arrivals.forEach(a => {
+      const scheduled = new Date(a.scheduledTime);
+      const mins = Math.max(0, Math.round((scheduled - new Date()) / 60000));
+      const statusClass = a.delayMinutes > 0 ? 'status-delay' : 'status-on';
+      const statusText = a.delayMinutes > 0 ? `Delayed ${a.delayMinutes}m` : 'On time';
+      html += `
+        <div class="departure-card">
+          <div class="dep-dest">Train #${a.trainId}</div>
+          <div class="dep-via">Platform ${a.platform}</div>
+          <div class="dep-row">
+            <div class="dep-time">+${mins} min</div>
+            <div class="dep-status ${statusClass}">${statusText}</div>
+          </div>
+        </div>`;
+    });
+  }
+
+  // Announcements
+  if (announcements.length > 0) {
+    html += `<div class="section-title">Announcements</div>`;
+    announcements.forEach(a => {
+      html += `
+        <div class="announce-card">
+          <div class="announce-title">📢 ${a.title}</div>
+          <div class="announce-body">${a.body}</div>
+        </div>`;
+    });
+  }
+
+  document.getElementById('info-panel').innerHTML = html;
+}
+
+// Init
+loadLines();
+loadTrains();
+setInterval(loadTrains, 30000);
+</script>
 </body>
 </html>
