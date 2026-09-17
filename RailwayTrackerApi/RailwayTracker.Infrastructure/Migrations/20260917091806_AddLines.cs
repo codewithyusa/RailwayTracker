@@ -6,7 +6,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace RailwayTracker.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class AddLinesTable : Migration
+    public partial class AddLines : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

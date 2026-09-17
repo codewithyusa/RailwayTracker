@@ -12,8 +12,8 @@ using RailwayTracker.Infrastructure.Persistence;
 namespace RailwayTracker.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260917091442_AddLinesTable")]
-    partial class AddLinesTable
+    [Migration("20260917091806_AddLines")]
+    partial class AddLines
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
