@@ -1,12 +1,18 @@
+using Microsoft.EntityFrameworkCore;
 using RailwayTracker.Infrastructure;
 using RailwayTracker.API.Hubs;
 using RailwayTracker.API.Services;
 using RailwayTracker.Application.Common.Interfaces;
+using RailwayTracker.Infrastructure.Persistence;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers()
+    .AddJsonOptions(o =>
+    {
+        o.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+    })
     .ConfigureApiBehaviorOptions(options =>
     {
         options.SuppressModelStateInvalidFilter = false;
@@ -53,8 +59,9 @@ if (app.Environment.IsDevelopment())
 
 using (var scope = app.Services.CreateScope())
 {
-    var db = scope.ServiceProvider.GetRequiredService<RailwayTracker.Infrastructure.Persistence.AppDbContext>();
-    await RailwayTracker.Infrastructure.Persistence.DataSeeder.SeedAsync(db);
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    await db.Database.MigrateAsync();
+    await DataSeeder.SeedAsync(db);
 }
 
 app.UseDefaultFiles();
