@@ -9,7 +9,6 @@
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:system-ui,sans-serif;background:#0a0f1e;color:#e2e8f0;height:100vh;display:flex;flex-direction:column}
 .header{background:#111827;border-bottom:1px solid #1e293b;padding:10px 20px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
-.header-left{display:flex;align-items:center;gap:12px}
 .header-title{font-size:16px;font-weight:600;color:#fff}
 .header-sub{font-size:11px;color:#64748b;margin-top:2px}
 .clock{font-size:20px;font-weight:500;color:#fbbf24;font-variant-numeric:tabular-nums}
@@ -40,7 +39,6 @@ body{font-family:system-ui,sans-serif;background:#0a0f1e;color:#e2e8f0;height:10
 .dep-status{font-size:11px;font-weight:500}
 .status-on{color:#4ade80}
 .status-delay{color:#fb923c}
-.status-cancelled{color:#f87171}
 .announce-card{margin:0 10px 6px;background:#1a1000;border:1px solid #78350f;border-radius:8px;padding:10px 12px}
 .announce-title{font-size:12px;font-weight:500;color:#fbbf24}
 .announce-body{font-size:11px;color:#d97706;margin-top:3px}
@@ -57,8 +55,8 @@ body{font-family:system-ui,sans-serif;background:#0a0f1e;color:#e2e8f0;height:10
 <div class="header">
   <div class="header-left">
     <div>
-      <div class="header-title">🚊 Addis Ababa Light Rail</div>
-      <div class="header-sub">Ethiopian Railways Corporation · Live Passenger Display</div>
+      <div class="header-title">&#x1F68A; Addis Ababa Light Rail</div>
+      <div class="header-sub">Ethiopian Railways Corporation &middot; Live Passenger Display</div>
     </div>
   </div>
   <div class="clock" id="clk">--:--:--</div>
@@ -83,13 +81,17 @@ body{font-family:system-ui,sans-serif;background:#0a0f1e;color:#e2e8f0;height:10
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-const LINE_COLORS = { 1: '#4ade80', 2: '#60a5fa', 3: '#f87171' };
-const LINE_TABS   = { 1: 'active-green', 2: 'active-blue', 3: 'active-common' };
+const COLORS = ['#4ade80', '#60a5fa', '#f87171'];
+const TABS   = ['active-green', 'active-blue', 'active-common'];
+const EMOJIS = ['\u{1F7E2}', '\u{1F535}', '\u{1F534}'];
 
-let lines = [], currentLine = 1, selectedStation = null;
+const LINE_COLORS = {};
+const LINE_TABS   = {};
+const LINE_EMOJIS = {};
+
+let lines = [], currentLine = null, selectedStation = null;
 let map, stationMarkers = {}, trainMarkers = [], polylines = [];
 
-// Clock
 function tick() {
   const n = new Date();
   document.getElementById('clk').textContent =
@@ -99,16 +101,20 @@ function tick() {
 }
 tick(); setInterval(tick, 1000);
 
-// Map — free OSM tiles, no API key needed
-map = L.map('map', { center: [9.02, 38.78], zoom: 14 });
+map = L.map('map', { center: [9.01, 38.76], zoom: 13 });
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  attribution: '© OpenStreetMap contributors', maxZoom: 19
+  attribution: '&copy; OpenStreetMap contributors', maxZoom: 19
 }).addTo(map);
 
-// Load data
 async function loadLines() {
   const res = await fetch('/api/lines');
   lines = await res.json();
+  lines.forEach((l, i) => {
+    LINE_COLORS[l.id] = COLORS[i] || '#ffffff';
+    LINE_TABS[l.id]   = TABS[i]   || 'active-green';
+    LINE_EMOJIS[l.id] = EMOJIS[i] || '\u{1F68A}';
+  });
+  currentLine = lines[0]?.id ?? null;
   renderTabs();
   renderSidebar();
   renderMap();
@@ -124,11 +130,11 @@ async function loadTrains() {
       const color = LINE_COLORS[t.lineId] || '#fff';
       const icon = L.divIcon({
         className: 'train-marker',
-        html: `<div style="background:${color};width:14px;height:14px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 6px ${color}"></div>`,
+        html: '<div style="background:' + color + ';width:14px;height:14px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 6px ' + color + '"></div>',
         iconSize: [14, 14], iconAnchor: [7, 7]
       });
       const m = L.marker([t.latitude, t.longitude], { icon })
-        .bindPopup(`<b>${t.code}</b> — ${t.name}<br>Status: ${['On Time','Delayed','Cancelled','Arrived'][t.status] || t.status}`);
+        .bindPopup('<b>' + t.code + '</b> &mdash; ' + t.name + '<br>Status: ' + (['On Time','Delayed','Cancelled','Arrived'][t.status] || t.status));
       m.addTo(map);
       trainMarkers.push(m);
     });
@@ -136,24 +142,20 @@ async function loadTrains() {
 }
 
 function renderTabs() {
-  const el = document.getElementById('tabs');
-  el.innerHTML = lines.map(l => `
-    <div class="tab ${l.id === currentLine ? LINE_TABS[l.id] : ''}"
-         onclick="switchLine(${l.id})">
-      ${l.id===1?'🟢':l.id===2?'🔵':'🔴'} ${l.name}
-    </div>`).join('');
+  document.getElementById('tabs').innerHTML = lines.map(l =>
+    '<div class="tab ' + (l.id === currentLine ? LINE_TABS[l.id] : '') + '" onclick="switchLine(' + l.id + ')">' +
+    LINE_EMOJIS[l.id] + ' ' + l.name + '</div>'
+  ).join('');
 }
 
 function renderSidebar() {
   const line = lines.find(l => l.id === currentLine);
   if (!line) return;
-  const el = document.getElementById('sidebar');
-  el.innerHTML = line.stations.map(s => `
-    <button class="station-btn ${selectedStation?.id === s.id ? 'active' : ''}"
-            onclick="selectStation(${s.id})">
-      <div class="dot" style="background:${LINE_COLORS[currentLine]}"></div>
-      ${s.name}
-    </button>`).join('');
+  const color = LINE_COLORS[currentLine];
+  document.getElementById('sidebar').innerHTML = line.stations.map(s =>
+    '<button class="station-btn ' + (selectedStation?.id === s.id ? 'active' : '') + '" onclick="selectStation(' + s.id + ')">' +
+    '<div class="dot" style="background:' + color + '"></div>' + s.name + '</button>'
+  ).join('');
 }
 
 function renderMap() {
@@ -165,14 +167,11 @@ function renderMap() {
   lines.forEach(line => {
     const color = LINE_COLORS[line.id];
     const coords = line.stations.map(s => [s.latitude, s.longitude]);
-    if (coords.length > 1) {
-      const pl = L.polyline(coords, { color, weight: 4, opacity: 0.8 }).addTo(map);
-      polylines.push(pl);
-    }
+    if (coords.length > 1)
+      polylines.push(L.polyline(coords, { color, weight: 4, opacity: 0.8 }).addTo(map));
     line.stations.forEach(s => {
       const marker = L.circleMarker([s.latitude, s.longitude], {
-        radius: 6, fillColor: color, color: '#fff',
-        weight: 2, opacity: 1, fillOpacity: 1
+        radius: 6, fillColor: color, color: '#fff', weight: 2, opacity: 1, fillOpacity: 1
       }).bindTooltip(s.name, { permanent: false, direction: 'top' })
         .on('click', () => { switchLine(line.id); selectStation(s.id); });
       marker.addTo(map);
@@ -186,13 +185,9 @@ function switchLine(lineId) {
   selectedStation = null;
   renderTabs();
   renderSidebar();
-  document.getElementById('info-panel').innerHTML =
-    '<div class="no-data">Select a station to see departures</div>';
+  document.getElementById('info-panel').innerHTML = '<div class="no-data">Select a station to see departures</div>';
   const line = lines.find(l => l.id === lineId);
-  if (line?.stations?.length) {
-    const s = line.stations[0];
-    map.setView([s.latitude, s.longitude], 14);
-  }
+  if (line?.stations?.length) map.setView([line.stations[0].latitude, line.stations[0].longitude], 14);
 }
 
 async function selectStation(stationId) {
@@ -200,98 +195,63 @@ async function selectStation(stationId) {
     const found = l.stations.find(s => s.id === stationId);
     if (found) { currentLine = l.id; selectedStation = found; break; }
   }
-
   renderTabs();
   renderSidebar();
-
-  if (selectedStation) {
-    map.setView([selectedStation.latitude, selectedStation.longitude], 15);
-  }
+  if (selectedStation) map.setView([selectedStation.latitude, selectedStation.longitude], 15);
 
   let arrivals = [], announcements = [];
-
+  try { const r = await fetch('/api/stations/' + stationId + '/arrivals');     if (r.ok) arrivals     = await r.json(); } catch {}
+  try { const r = await fetch('/api/announcements/station/' + stationId);      if (r.ok) announcements = await r.json(); } catch {}
   try {
-    const res = await fetch(`/api/stations/${stationId}/arrivals`);
-    if (res.ok) arrivals = await res.json();
+    const r = await fetch('/api/announcements');
+    if (r.ok) { const all = await r.json(); announcements = [...announcements, ...all.filter(a => !a.stationId)]; }
   } catch {}
-
-  try {
-    const res = await fetch(`/api/announcements/station/${stationId}`);
-    if (res.ok) announcements = await res.json();
-  } catch {}
-
-  try {
-    const res = await fetch('/api/announcements');
-    if (res.ok) {
-      const all = await res.json();
-      const global = all.filter(a => !a.stationId);
-      announcements = [...announcements, ...global];
-    }
-  } catch {}
-
   renderInfoPanel(arrivals, announcements);
 }
 
 function renderInfoPanel(arrivals, announcements) {
-  const line = lines.find(l => l.id === currentLine);
+  const line  = lines.find(l => l.id === currentLine);
   const color = LINE_COLORS[currentLine];
 
-  let html = `
-    <div class="info-header">
-      <div class="info-station">${selectedStation?.name || 'Station'}</div>
-      <div class="info-line" style="color:${color}">${line?.name || ''} · ${line?.terminusA} ↔ ${line?.terminusB}</div>
-    </div>`;
-
-  html += `<div class="section-title">Departures</div>`;
+  let html = '<div class="info-header">' +
+    '<div class="info-station">' + (selectedStation?.name || 'Station') + '</div>' +
+    '<div class="info-line" style="color:' + color + '">' + (line?.name || '') + ' &middot; ' + line?.terminusA + ' &harr; ' + line?.terminusB + '</div>' +
+    '</div><div class="section-title">Departures</div>';
 
   if (arrivals.length === 0) {
-    const sims = [
-      { dest: line?.terminusB, mins: 3,  delay: false },
-      { dest: line?.terminusB, mins: 18, delay: false },
-      { dest: line?.terminusA, mins: 7,  delay: true  },
-      { dest: line?.terminusA, mins: 22, delay: false },
-    ];
-    sims.forEach(d => {
-      html += `
-        <div class="departure-card">
-          <div class="dep-dest">${d.dest}</div>
-          <div class="dep-via">via Common Section</div>
-          <div class="dep-row">
-            <div class="dep-time">+${d.mins} min</div>
-            <div class="dep-status ${d.delay ? 'status-delay' : 'status-on'}">${d.delay ? 'Delayed' : 'On time'}</div>
-          </div>
-        </div>`;
+    [{ dest: line?.terminusB, mins: 3,  delay: false },
+     { dest: line?.terminusB, mins: 18, delay: false },
+     { dest: line?.terminusA, mins: 7,  delay: true  },
+     { dest: line?.terminusA, mins: 22, delay: false }].forEach(d => {
+      html += '<div class="departure-card">' +
+        '<div class="dep-dest">' + d.dest + '</div>' +
+        '<div class="dep-via">via Common Section</div>' +
+        '<div class="dep-row"><div class="dep-time">+' + d.mins + ' min</div>' +
+        '<div class="dep-status ' + (d.delay ? 'status-delay' : 'status-on') + '">' + (d.delay ? 'Delayed' : 'On time') + '</div></div></div>';
     });
   } else {
     arrivals.forEach(a => {
       const mins = Math.max(0, Math.round((new Date(a.scheduledTime) - new Date()) / 60000));
-      html += `
-        <div class="departure-card">
-          <div class="dep-dest">Train #${a.trainId}</div>
-          <div class="dep-via">Platform ${a.platform}</div>
-          <div class="dep-row">
-            <div class="dep-time">+${mins} min</div>
-            <div class="dep-status ${a.delayMinutes > 0 ? 'status-delay' : 'status-on'}">${a.delayMinutes > 0 ? `Delayed ${a.delayMinutes}m` : 'On time'}</div>
-          </div>
-        </div>`;
+      html += '<div class="departure-card">' +
+        '<div class="dep-dest">Train #' + a.trainId + '</div>' +
+        '<div class="dep-via">Platform ' + a.platform + '</div>' +
+        '<div class="dep-row"><div class="dep-time">+' + mins + ' min</div>' +
+        '<div class="dep-status ' + (a.delayMinutes > 0 ? 'status-delay' : 'status-on') + '">' + (a.delayMinutes > 0 ? 'Delayed ' + a.delayMinutes + 'm' : 'On time') + '</div></div></div>';
     });
   }
 
   if (announcements.length > 0) {
-    html += `<div class="section-title">Announcements</div>`;
+    html += '<div class="section-title">Announcements</div>';
     announcements.forEach(a => {
-      html += `
-        <div class="announce-card">
-          <div class="announce-title">📢 ${a.title}</div>
-          <div class="announce-body">${a.body}</div>
-        </div>`;
+      html += '<div class="announce-card">' +
+        '<div class="announce-title">&#x1F4E2; ' + a.title + '</div>' +
+        '<div class="announce-body">' + a.body + '</div></div>';
     });
   }
 
   document.getElementById('info-panel').innerHTML = html;
 }
 
-// Init
 loadLines();
 loadTrains();
 setInterval(loadTrains, 30000);
