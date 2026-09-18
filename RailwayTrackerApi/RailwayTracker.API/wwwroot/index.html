@@ -46,7 +46,7 @@ body{font-family:system-ui,sans-serif;background:#0a0f1e;color:#e2e8f0;height:10
 .announce-body{font-size:11px;color:#d97706;margin-top:3px}
 .no-data{padding:16px 14px;font-size:12px;color:#475569;text-align:center}
 .train-marker{background:transparent;border:none}
-.legend{position:absolute;bottom:20px;left:10px;background:#111827;border:1px solid #1e293b;border-radius:8px;padding:10px 14px;z-index:1000;font-size:11px}
+.legend{position:absolute;bottom:20px;left:10px;background:#111827cc;border:1px solid #1e293b;border-radius:8px;padding:10px 14px;z-index:1000;font-size:11px}
 .legend-item{display:flex;align-items:center;gap:8px;margin-bottom:4px;color:#94a3b8}
 .legend-item:last-child{margin-bottom:0}
 .legend-line{width:20px;height:3px;border-radius:2px}
@@ -85,7 +85,6 @@ body{font-family:system-ui,sans-serif;background:#0a0f1e;color:#e2e8f0;height:10
 <script>
 const LINE_COLORS = { 1: '#4ade80', 2: '#60a5fa', 3: '#f87171' };
 const LINE_TABS   = { 1: 'active-green', 2: 'active-blue', 3: 'active-common' };
-const LINE_DOTS   = { 1: 'dot-green', 2: 'dot-blue', 3: 'dot-red' };
 
 let lines = [], currentLine = 1, selectedStation = null;
 let map, stationMarkers = {}, trainMarkers = [], polylines = [];
@@ -100,10 +99,10 @@ function tick() {
 }
 tick(); setInterval(tick, 1000);
 
-// Map
-map = L.map('map', { center: [9.005, 38.76], zoom: 13 });
-L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-  attribution: '© OpenStreetMap © CARTO', maxZoom: 19
+// Map — free OSM tiles, no API key needed
+map = L.map('map', { center: [9.02, 38.78], zoom: 14 });
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '© OpenStreetMap contributors', maxZoom: 19
 }).addTo(map);
 
 // Load data
@@ -116,22 +115,24 @@ async function loadLines() {
 }
 
 async function loadTrains() {
-  const res = await fetch('/api/trains');
-  const trains = await res.json();
-  trainMarkers.forEach(m => map.removeLayer(m));
-  trainMarkers = [];
-  trains.filter(t => t.isActive).forEach(t => {
-    const color = LINE_COLORS[t.lineId] || '#fff';
-    const icon = L.divIcon({
-      className: 'train-marker',
-      html: `<div style="background:${color};width:14px;height:14px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 6px ${color}"></div>`,
-      iconSize: [14, 14], iconAnchor: [7, 7]
+  try {
+    const res = await fetch('/api/trains');
+    const trains = await res.json();
+    trainMarkers.forEach(m => map.removeLayer(m));
+    trainMarkers = [];
+    trains.filter(t => t.isActive).forEach(t => {
+      const color = LINE_COLORS[t.lineId] || '#fff';
+      const icon = L.divIcon({
+        className: 'train-marker',
+        html: `<div style="background:${color};width:14px;height:14px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 6px ${color}"></div>`,
+        iconSize: [14, 14], iconAnchor: [7, 7]
+      });
+      const m = L.marker([t.latitude, t.longitude], { icon })
+        .bindPopup(`<b>${t.code}</b> — ${t.name}<br>Status: ${['On Time','Delayed','Cancelled','Arrived'][t.status] || t.status}`);
+      m.addTo(map);
+      trainMarkers.push(m);
     });
-    const m = L.marker([t.latitude, t.longitude], { icon })
-      .bindPopup(`<b>${t.code}</b> — ${t.name}<br>Status: ${['On Time','Delayed','Cancelled','Arrived'][t.status] || t.status}`);
-    m.addTo(map);
-    trainMarkers.push(m);
-  });
+  } catch {}
 }
 
 function renderTabs() {
@@ -156,7 +157,6 @@ function renderSidebar() {
 }
 
 function renderMap() {
-  // Clear old polylines and markers
   polylines.forEach(p => map.removeLayer(p));
   polylines = [];
   Object.values(stationMarkers).forEach(m => map.removeLayer(m));
@@ -170,16 +170,13 @@ function renderMap() {
       polylines.push(pl);
     }
     line.stations.forEach(s => {
-      const icon = L.circleMarker([s.latitude, s.longitude], {
+      const marker = L.circleMarker([s.latitude, s.longitude], {
         radius: 6, fillColor: color, color: '#fff',
         weight: 2, opacity: 1, fillOpacity: 1
       }).bindTooltip(s.name, { permanent: false, direction: 'top' })
-        .on('click', () => {
-          switchLine(line.id);
-          selectStation(s.id);
-        });
-      icon.addTo(map);
-      stationMarkers[s.id] = icon;
+        .on('click', () => { switchLine(line.id); selectStation(s.id); });
+      marker.addTo(map);
+      stationMarkers[s.id] = marker;
     });
   });
 }
@@ -199,11 +196,6 @@ function switchLine(lineId) {
 }
 
 async function selectStation(stationId) {
-  const line = lines.find(l => l.id === currentLine);
-  selectedStation = line?.stations?.find(s => s.id === stationId) ||
-    lines.flatMap(l => l.stations).find(s => s.id === stationId);
-
-  // Find which line this station belongs to
   for (const l of lines) {
     const found = l.stations.find(s => s.id === stationId);
     if (found) { currentLine = l.id; selectedStation = found; break; }
@@ -216,21 +208,18 @@ async function selectStation(stationId) {
     map.setView([selectedStation.latitude, selectedStation.longitude], 15);
   }
 
-  // Fetch arrivals
-  let arrivals = [];
+  let arrivals = [], announcements = [];
+
   try {
     const res = await fetch(`/api/stations/${stationId}/arrivals`);
     if (res.ok) arrivals = await res.json();
   } catch {}
 
-  // Fetch announcements
-  let announcements = [];
   try {
     const res = await fetch(`/api/announcements/station/${stationId}`);
     if (res.ok) announcements = await res.json();
   } catch {}
 
-  // Also get global announcements
   try {
     const res = await fetch('/api/announcements');
     if (res.ok) {
@@ -253,22 +242,20 @@ function renderInfoPanel(arrivals, announcements) {
       <div class="info-line" style="color:${color}">${line?.name || ''} · ${line?.terminusA} ↔ ${line?.terminusB}</div>
     </div>`;
 
-  // Departures
   html += `<div class="section-title">Departures</div>`;
+
   if (arrivals.length === 0) {
-    // Show simulated departures based on line
-    const now = new Date();
     const sims = [
-      { dest: line?.terminusB, via: 'Common Section', mins: 3, delay: false },
-      { dest: line?.terminusB, via: 'Common Section', mins: 18, delay: false },
-      { dest: line?.terminusA, via: 'Common Section', mins: 7, delay: true },
-      { dest: line?.terminusA, via: 'Common Section', mins: 22, delay: false },
+      { dest: line?.terminusB, mins: 3,  delay: false },
+      { dest: line?.terminusB, mins: 18, delay: false },
+      { dest: line?.terminusA, mins: 7,  delay: true  },
+      { dest: line?.terminusA, mins: 22, delay: false },
     ];
     sims.forEach(d => {
       html += `
         <div class="departure-card">
           <div class="dep-dest">${d.dest}</div>
-          <div class="dep-via">via ${d.via}</div>
+          <div class="dep-via">via Common Section</div>
           <div class="dep-row">
             <div class="dep-time">+${d.mins} min</div>
             <div class="dep-status ${d.delay ? 'status-delay' : 'status-on'}">${d.delay ? 'Delayed' : 'On time'}</div>
@@ -277,23 +264,19 @@ function renderInfoPanel(arrivals, announcements) {
     });
   } else {
     arrivals.forEach(a => {
-      const scheduled = new Date(a.scheduledTime);
-      const mins = Math.max(0, Math.round((scheduled - new Date()) / 60000));
-      const statusClass = a.delayMinutes > 0 ? 'status-delay' : 'status-on';
-      const statusText = a.delayMinutes > 0 ? `Delayed ${a.delayMinutes}m` : 'On time';
+      const mins = Math.max(0, Math.round((new Date(a.scheduledTime) - new Date()) / 60000));
       html += `
         <div class="departure-card">
           <div class="dep-dest">Train #${a.trainId}</div>
           <div class="dep-via">Platform ${a.platform}</div>
           <div class="dep-row">
             <div class="dep-time">+${mins} min</div>
-            <div class="dep-status ${statusClass}">${statusText}</div>
+            <div class="dep-status ${a.delayMinutes > 0 ? 'status-delay' : 'status-on'}">${a.delayMinutes > 0 ? `Delayed ${a.delayMinutes}m` : 'On time'}</div>
           </div>
         </div>`;
     });
   }
 
-  // Announcements
   if (announcements.length > 0) {
     html += `<div class="section-title">Announcements</div>`;
     announcements.forEach(a => {
