@@ -1,35 +1,23 @@
-import { Component, inject, OnInit } from '@angular/core';
-import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
-import { RailwayStore } from './store/railway.store';
-import { LiveSyncService } from './services/live-sync.service';
+.navbar {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  padding: 0.75rem 1.5rem;
+  background: #0f172a;
+  border-bottom: 1px solid #1e293b;
 
-@Component({
-  selector: 'app-root',
-  standalone: true,
-  imports: [RouterOutlet, RouterLink, RouterLinkActive],
-  template: `
-    <nav class="navbar">
-      <div class="nav-brand">🚊 RailwayTracker Ethiopia</div>
-      <div class="nav-links">
-        <a routerLink="/dashboard" routerLinkActive="active">Dashboard</a>
-        <a routerLink="/stations" routerLinkActive="active">Stations</a>
-        <a routerLink="/announce" routerLinkActive="active">Announce</a>
-      </div>
-      <div class="nav-status" [class]="sync.connectionState()">
-        ● {{ sync.connectionState() | titlecase }}
-      </div>
-    </nav>
-    <router-outlet />
-  `,
-  styleUrl: './app.component.scss',
-})
-export class AppComponent implements OnInit {
-  store = inject(RailwayStore);
-  sync = inject(LiveSyncService);
+  .nav-brand { font-weight: 700; color: #fff; font-size: 1rem; }
 
-  ngOnInit() {
-    this.store.loadTrains();
-    this.store.loadStations();
-    this.store.listenForLivePositions();
+  .nav-links {
+    display: flex; gap: 1rem;
+    a { color: #94a3b8; text-decoration: none; font-size: 0.9rem; padding: 0.4rem 0.8rem; border-radius: 6px; }
+    a.active { background: #1e293b; color: #fff; }
+  }
+
+  .nav-status {
+    margin-left: auto; font-size: 0.8rem; font-weight: 500;
+    &.connected { color: #4ade80; }
+    &.reconnecting { color: #fbbf24; }
+    &.disconnected { color: #f87171; }
   }
 }
