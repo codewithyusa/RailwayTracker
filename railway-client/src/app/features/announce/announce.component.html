@@ -1,0 +1,63 @@
+<div class="announce-layout">
+  <div class="form-card">
+    <h2>Post Announcement</h2>
+    <p class="subtitle">Broadcast a message to a station's passengers</p>
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+
+      <mat-form-field appearance="outline" class="full">
+        <mat-label>Title</mat-label>
+        <input matInput formControlName="title" placeholder="e.g. Train Delay" />
+        @if (form.controls.title.touched && form.controls.title.invalid) {
+          <mat-error>Title is required</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full">
+        <mat-label>Message</mat-label>
+        <textarea matInput formControlName="body" rows="4" placeholder="Announcement details..."></textarea>
+        @if (form.controls.body.touched && form.controls.body.invalid) {
+          <mat-error>Message is required</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full">
+        <mat-label>Station</mat-label>
+        <mat-select formControlName="stationId">
+          @for (s of store.stations(); track s.id) {
+            <mat-option [value]="s.id">{{ s.name }}</mat-option>
+          }
+        </mat-select>
+        @if (form.controls.stationId.touched && form.controls.stationId.invalid) {
+          <mat-error>Select a station</mat-error>
+        }
+      </mat-form-field>
+
+      @if (isSubmitting()) {
+        <div class="spinner-row">
+          <mat-spinner diameter="28" />
+          <span>Posting...</span>
+        </div>
+      }
+
+      @if (status()) {
+        <div class="status-msg">{{ status() }}</div>
+      }
+
+      <button mat-raised-button color="primary" type="submit"
+              [disabled]="form.invalid || isSubmitting()" class="submit-btn">
+        Post Announcement
+      </button>
+    </form>
+  </div>
+
+  <!-- rage-click proof note -->
+  <div class="info-box">
+    <h3>🛡️ Rage-Click Protected</h3>
+    <p>This form uses <code>exhaustMap</code> — clicking the button multiple times while a request is in flight sends exactly one POST to the API.</p>
+    <h3 style="margin-top:1.5rem">📡 Live Sync</h3>
+    <p>Train positions update in real time via SignalR from <code>/hubs/railway</code>.</p>
+    <h3 style="margin-top:1.5rem">🏪 Centralized Store</h3>
+    <p>All pages share one <code>RailwayStore</code> — no data drift between components.</p>
+  </div>
+</div>
