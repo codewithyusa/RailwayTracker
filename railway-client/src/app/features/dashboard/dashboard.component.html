@@ -35,10 +35,12 @@
           </span>
         </div>
         <div class="detail-row">
-          <span>Latitude</span><span>{{ train.latitude | number:'1.4-4' }}</span>
+          <span>Latitude</span>
+          <span>{{ train.latitude | number:'1.4-4' }}</span>
         </div>
         <div class="detail-row">
-          <span>Longitude</span><span>{{ train.longitude | number:'1.4-4' }}</span>
+          <span>Longitude</span>
+          <span>{{ train.longitude | number:'1.4-4' }}</span>
         </div>
       } @else {
         <div class="no-select">Click a train on the map to see details</div>
@@ -47,7 +49,7 @@
   </div>
 
   <!-- Deferred trains table -->
-  @defer (on viewport; prefetch on idle(500)) {
+  @defer (on viewport; prefetch on idle) {
     <div class="table-section">
       <h2>All Trains</h2>
       @if (store.isLoading()) {
@@ -74,8 +76,11 @@
           </td>
         </ng-container>
         <tr mat-header-row *matHeaderRowDef="['code','name','status']"></tr>
-        <tr mat-row *matRowDef="let row; columns: ['code','name','status']"
-            (click)="selectedTrain.set(row)" class="clickable"></tr>
+        <tr mat-row
+            *matRowDef="let row; columns: ['code','name','status']"
+            (click)="selectedTrain.set(row)"
+            class="clickable">
+        </tr>
       </table>
     </div>
   } @placeholder {

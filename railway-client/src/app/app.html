@@ -1,0 +1,12 @@
+<nav class="navbar">
+  <div class="nav-brand">🚊 RailwayTracker Ethiopia</div>
+  <div class="nav-links">
+    <a routerLink="/dashboard" routerLinkActive="active">Dashboard</a>
+    <a routerLink="/stations" routerLinkActive="active">Stations</a>
+    <a routerLink="/announce" routerLinkActive="active">Announce</a>
+  </div>
+  <div class="nav-status" [class]="sync.connectionState()">
+    ● {{ sync.connectionState() | titlecase }}
+  </div>
+</nav>
+<router-outlet />

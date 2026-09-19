@@ -1,7 +1,7 @@
 import { Component, inject, OnInit, AfterViewInit, signal } from '@angular/core';
-import { RailwayStore } from '../../store/railway.store';
+import { DecimalPipe } from '@angular/common';
 import { MatTableModule } from '@angular/material/table';
-import { TitleCasePipe } from '@angular/common';
+import { RailwayStore } from '../../store/railway.store';
 
 declare const L: any;
 
@@ -11,12 +11,12 @@ const STATUS_COLORS = ['#4ade80', '#fb923c', '#f87171', '#60a5fa'];
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [MatTableModule, TitleCasePipe],
+  imports: [MatTableModule, DecimalPipe],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss',
 })
 export class DashboardComponent implements OnInit, AfterViewInit {
-  store = inject(RailwayStore);
+  store = inject(RailwayStore) as any;
   selectedTrain = signal<any>(null);
 
   private map: any;
@@ -32,6 +32,11 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   private initMap() {
     if (typeof window === 'undefined') return;
 
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+    document.head.appendChild(link);
+
     const script = document.createElement('script');
     script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
     script.onload = () => {
@@ -41,42 +46,37 @@ export class DashboardComponent implements OnInit, AfterViewInit {
       }).addTo(this.map);
       this.leafletReady = true;
       this.renderMarkers();
-
-      // Update markers every 5s
       setInterval(() => this.renderMarkers(), 5000);
     };
     document.head.appendChild(script);
-
-    const link = document.createElement('link');
-    link.rel = 'stylesheet';
-    link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
-    document.head.appendChild(link);
   }
 
   private renderMarkers() {
     if (!this.leafletReady || !this.map) return;
-    const trains = this.store.entities();
 
-    trains.forEach(train => {
+    (this.store.entities() as any[]).forEach((train: any) => {
       const color = STATUS_COLORS[train.status] ?? '#fff';
-      const html = `<div style="background:${color};width:14px;height:14px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 8px ${color}"></div>`;
-      const icon = L.divIcon({ className: '', html, iconSize: [14, 14], iconAnchor: [7, 7] });
+      const html = `<div style="background:${color};width:14px;height:14px;
+        border-radius:50%;border:2px solid #fff;box-shadow:0 0 8px ${color}"></div>`;
+      const icon = L.divIcon({
+        className: '', html, iconSize: [14, 14], iconAnchor: [7, 7]
+      });
 
       if (this.markers.has(train.id)) {
         this.markers.get(train.id).setLatLng([train.latitude, train.longitude]);
       } else {
         const m = L.marker([train.latitude, train.longitude], { icon })
-          .bindPopup(`<b>${train.code}</b> — ${train.name}<br>Status: ${STATUS_LABELS[train.status]}`)
+          .bindPopup(`<b>${train.code}</b> — ${train.name}`)
           .on('click', () => this.selectedTrain.set(train));
         m.addTo(this.map);
         this.markers.set(train.id, m);
       }
     });
 
-    // Draw station markers
-    this.store.stations().forEach(s => {
+    (this.store.stations() as any[]).forEach((s: any) => {
       L.circleMarker([s.latitude, s.longitude], {
-        radius: 7, fillColor: '#60a5fa', color: '#fff', weight: 2, fillOpacity: 1
+        radius: 7, fillColor: '#60a5fa',
+        color: '#fff', weight: 2, fillOpacity: 1
       }).bindTooltip(s.name).addTo(this.map);
     });
   }

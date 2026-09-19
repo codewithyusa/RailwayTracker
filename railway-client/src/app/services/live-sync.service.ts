@@ -23,20 +23,23 @@ export class LiveSyncService {
     if (!isPlatformBrowser(this.platformId)) return;
 
     this.connection = new HubConnectionBuilder()
-      .withUrl('http://localhost:5285/hubs/railway')
+      .withUrl('/hubs/trains')
       .withAutomaticReconnect([0, 2000, 10000, 30000])
       .build();
 
-    this.connection.on('ReceiveTrainPosition', (trainId: number, lat: number, lng: number) => {
-      this.positionSubject.next({ trainId, latitude: lat, longitude: lng });
-    });
+    this.connection.on('ReceiveTrainPosition',
+      (trainId: number, lat: number, lng: number) => {
+        this.positionSubject.next({ trainId, latitude: lat, longitude: lng });
+      }
+    );
 
     this.connection.onreconnecting(() => this.connectionState.set('reconnecting'));
     this.connection.onreconnected(() => this.connectionState.set('connected'));
     this.connection.onclose(() => this.connectionState.set('disconnected'));
 
-    this.connection.start()
+    this.connection
+      .start()
       .then(() => this.connectionState.set('connected'))
-      .catch(err => console.error('SignalR error:', err));
+      .catch((err: unknown) => console.error('SignalR error:', err));
   }
 }
