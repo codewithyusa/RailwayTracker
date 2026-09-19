@@ -1,9 +1,16 @@
 import { computed, inject } from '@angular/core';
 import {
-  signalStore, withComputed, withMethods,
-  patchState, withState
+  signalStore,
+  withComputed,
+  withMethods,
+  patchState,
+  withState,
 } from '@ngrx/signals';
-import { withEntities, setAllEntities, updateEntity } from '@ngrx/signals/entities';
+import {
+  withEntities,
+  setAllEntities,
+  updateEntity,
+} from '@ngrx/signals/entities';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { pipe, concatMap, tap, catchError, EMPTY, switchMap } from 'rxjs';
 import { TrainService } from '../services/train.service';
@@ -30,20 +37,28 @@ export const RailwayStore = signalStore(
     error: null,
   }),
   withEntities<Train>(),
-  withComputed((store) => ({
-    activeTrains: computed(() => store.entities().filter(t => t.isActive)),
-    delayedTrains: computed(() => store.entities().filter(t => t.status === 1)),
+  withComputed((store: any) => ({
+    activeTrains: computed(() =>
+      (store.entities() as Train[]).filter((t: Train) => t.isActive)
+    ),
+    delayedTrains: computed(() =>
+      (store.entities() as Train[]).filter((t: Train) => t.status === 1)
+    ),
     selectedStation: computed(() =>
-      store.stations().find(s => s.id === store.selectedStationId()) ?? null
+      (store.stations() as Station[]).find(
+        (s: Station) => s.id === store.selectedStationId()
+      ) ?? null
     ),
   })),
-  withMethods((store, api = inject(TrainService), sync = inject(LiveSyncService)) => ({
+  withMethods((store: any, api = inject(TrainService), sync = inject(LiveSyncService)) => ({
 
     loadTrains: rxMethod<void>(pipe(
       tap(() => patchState(store, { isLoading: true })),
       concatMap(() => api.getTrains().pipe(
-        tap(trains => patchState(store, setAllEntities(trains), { isLoading: false })),
-        catchError(err => {
+        tap((trains: Train[]) =>
+          patchState(store, setAllEntities(trains), { isLoading: false })
+        ),
+        catchError((err: Error) => {
           patchState(store, { isLoading: false, error: err.message });
           return EMPTY;
         })
@@ -52,22 +67,24 @@ export const RailwayStore = signalStore(
 
     loadStations: rxMethod<void>(pipe(
       concatMap(() => api.getStations().pipe(
-        tap(stations => patchState(store, { stations })),
+        tap((stations: Station[]) => patchState(store, { stations })),
         catchError(() => EMPTY)
       ))
     )),
 
     selectStation: rxMethod<number>(pipe(
-      tap(id => patchState(store, { selectedStationId: id, arrivals: [], announcements: [] })),
-      concatMap(id => api.getArrivals(id).pipe(
-        tap(arrivals => patchState(store, { arrivals })),
+      tap((id: number) =>
+        patchState(store, { selectedStationId: id, arrivals: [], announcements: [] })
+      ),
+      concatMap((id: number) => api.getArrivals(id).pipe(
+        tap((arrivals: Arrival[]) => patchState(store, { arrivals })),
         catchError(() => EMPTY)
       )),
       concatMap(() => {
-        const id = store.selectedStationId();
+        const id = store.selectedStationId() as number | null;
         if (!id) return EMPTY;
         return api.getAnnouncements(id).pipe(
-          tap(announcements => patchState(store, { announcements })),
+          tap((announcements: Announcement[]) => patchState(store, { announcements })),
           catchError(() => EMPTY)
         );
       })
@@ -76,7 +93,7 @@ export const RailwayStore = signalStore(
     listenForLivePositions: rxMethod<void>(pipe(
       tap(() => sync.connect()),
       switchMap(() => sync.positions$),
-      tap(event => {
+      tap((event: any) => {
         patchState(store, updateEntity({
           id: event.trainId,
           changes: { latitude: event.latitude, longitude: event.longitude }
