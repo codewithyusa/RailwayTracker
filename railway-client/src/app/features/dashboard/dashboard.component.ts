@@ -10,9 +10,9 @@ const STATUS_COLORS = ['#4ade80', '#fb923c', '#f87171', '#60a5fa'];
 
 // Green Line: Torhailoch (west) → Ayat (east)
 const GREEN_LINE: [number, number][] = [
-  [8.9956, 38.7142], // Torhailoch
-  [8.9991, 38.7242], // CocaCola
-  [9.0035, 38.7358], // St. Lideta
+  [9.0140, 38.7140], // Torhailoch
+  [9.0148, 38.7242], // CocaCola
+  [9.0155, 38.7358], // St. Lideta
   [9.0068, 38.7435], // Tegbared
   [9.0098, 38.7505], // Mexico
   [9.0122, 38.7570], // Leghar
@@ -40,14 +40,13 @@ const BLUE_LINE: [number, number][] = [
   [9.0421, 38.7471], // Atikilt Tera
   [9.0360, 38.7474], // Gojam Berenda
   [9.0295, 38.7478], // Autobus Tera
-  [9.0230, 38.7435], // Sebategna
-  [9.0165, 38.7400], // Abnet
-  [9.0100, 38.7370], // Darmar
+  [9.0230, 38.7478], // Sebategna
+  [9.0165, 38.7468], // Abnet
+  [9.0100, 38.7455], // Darmar
   [9.0068, 38.7435], // Tegbared (interchange)
   [9.0098, 38.7505], // Mexico
   [9.0122, 38.7570], // Leghar
   [9.0145, 38.7636], // Stadium
-  // South — straight south
   [9.0080, 38.7636], // Meshwlekya
   [9.0010, 38.7636], // Riche
   [8.9940, 38.7636], // Temenja Yazh
@@ -110,17 +109,14 @@ export class DashboardComponent implements AfterViewInit {
   }
 
   private drawLines() {
-    // Draw green first (bottom layer)
     L.polyline(GREEN_LINE, {
       color: '#4ade80', weight: 5, opacity: 0.9,
     }).addTo(this.map).bindTooltip('Green Line — Line 1', { sticky: true });
 
-    // Draw blue on top
     L.polyline(BLUE_LINE, {
       color: '#60a5fa', weight: 5, opacity: 0.9,
     }).addTo(this.map).bindTooltip('Blue Line — Line 2', { sticky: true });
 
-    // Common section dashed on top of both
     L.polyline(COMMON, {
       color: '#f87171', weight: 6, opacity: 1, dashArray: '10 5',
     }).addTo(this.map).bindTooltip('Common Section', { sticky: true });
@@ -129,10 +125,9 @@ export class DashboardComponent implements AfterViewInit {
     L.circleMarker([9.0068, 38.7435], {
       radius: 9, fillColor: '#fff',
       color: '#f87171', weight: 3, fillOpacity: 1,
-    }).bindTooltip('Tegbared — Interchange', { permanent: false })
-      .addTo(this.map);
+    }).bindTooltip('Tegbared — Interchange').addTo(this.map);
 
-    // Map legend
+    // Legend
     const legend = (L.control as any)({ position: 'bottomleft' });
     legend.onAdd = () => {
       const div = L.DomUtil.create('div');
@@ -152,7 +147,6 @@ export class DashboardComponent implements AfterViewInit {
   private renderMarkers() {
     if (!this.leafletReady || !this.map) return;
 
-    // Train markers
     (this.store.entities() as any[]).forEach((train: any) => {
       const color = STATUS_COLORS[train.status] ?? '#fff';
       const html = `<div style="background:${color};width:16px;height:16px;
@@ -170,7 +164,6 @@ export class DashboardComponent implements AfterViewInit {
       }
     });
 
-    // Station dots — added once
     if (!this.stationMarkersAdded && this.store.stations().length > 0) {
       this.stationMarkersAdded = true;
       (this.store.stations() as any[]).forEach((s: any) => {
