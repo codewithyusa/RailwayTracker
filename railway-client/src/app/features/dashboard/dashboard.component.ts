@@ -64,8 +64,8 @@ export class DashboardComponent implements AfterViewInit {
     script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
     script.onload = () => {
       this.map = L.map('railway-map').setView([9.02, 38.76], 12);
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-        attribution: '© OpenStreetMap © CARTO', maxZoom: 19,
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors', maxZoom: 19,
       }).addTo(this.map);
       this.drawLines();
       this.leafletReady = true;
@@ -117,13 +117,13 @@ export class DashboardComponent implements AfterViewInit {
           border-radius:50%;
           border:3px solid #fff;
           box-shadow:0 0 12px ${color}, 0 0 24px ${color};
-          position:relative;
-        ">
+          position:relative;">
           <div style="
             position:absolute;top:50%;left:50%;
             transform:translate(-50%,-50%);
-            font-size:9px;font-weight:700;color:#000;line-height:1;
-          ">${train.code?.split('-')[1] ?? ''}</div>
+            font-size:9px;font-weight:700;color:#000;line-height:1;">
+            ${train.code?.split('-')[1] ?? ''}
+          </div>
         </div>`;
       const icon = L.divIcon({ className: '', html, iconSize: [24, 24], iconAnchor: [12, 12] });
 
