@@ -23,7 +23,7 @@ export class LiveSyncService {
     if (!isPlatformBrowser(this.platformId)) return;
 
     this.connection = new HubConnectionBuilder()
-      .withUrl('/hubs/trains')
+      .withUrl('http://localhost:5285/hubs/trains')
       .withAutomaticReconnect([0, 2000, 10000, 30000])
       .build();
 
