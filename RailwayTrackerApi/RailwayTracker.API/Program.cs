@@ -27,6 +27,7 @@ builder.Services.AddMediatR(cfg =>
 
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddScoped<ITrainPositionBroadcaster, TrainPositionBroadcaster>();
+builder.Services.AddHostedService<TrainSimulatorService>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddOpenApi();
 
@@ -45,7 +46,6 @@ builder.Services.AddAuthentication("Bearer")
                 System.Text.Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!))
         };
 
-        // Allow SignalR to read JWT from query string (WebSocket can't set headers)
         options.Events = new Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerEvents
         {
             OnMessageReceived = context =>
@@ -88,7 +88,7 @@ using (var scope = app.Services.CreateScope())
 app.UseDefaultFiles();
 app.UseStaticFiles();
 
-app.UseCors("AllowAngular");        // ← must be before Auth and Controllers
+app.UseCors("AllowAngular");
 
 app.UseHttpsRedirection();
 app.UseAuthentication();
