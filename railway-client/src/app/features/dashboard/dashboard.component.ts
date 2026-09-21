@@ -8,63 +8,30 @@ declare const L: any;
 const STATUS_LABELS = ['On Time', 'Delayed', 'Cancelled', 'Arrived'];
 const STATUS_COLORS = ['#4ade80', '#fb923c', '#f87171', '#60a5fa'];
 
-// Green Line: Torhailoch (west) → Ayat (east)
 const GREEN_LINE: [number, number][] = [
-  [9.0140, 38.7140], // Torhailoch
-  [9.0148, 38.7242], // CocaCola
-  [9.0155, 38.7358], // St. Lideta
-  [9.0068, 38.7435], // Tegbared
-  [9.0098, 38.7505], // Mexico
-  [9.0122, 38.7570], // Leghar
-  [9.0145, 38.7636], // Stadium
-  [9.0155, 38.7690], // St. Estraos
-  [9.0163, 38.7745], // Bambis
-  [9.0171, 38.7800], // St. Urael
-  [9.0178, 38.7855], // Hayahulet 2
-  [9.0185, 38.7910], // Hayahulet 1
-  [9.0192, 38.7965], // Lem Hotel
-  [9.0200, 38.8010], // Megenagna
-  [9.0200, 38.8055], // Gurd Shola 2
-  [9.0200, 38.8100], // Gurd Shola 1
-  [9.0200, 38.8145], // Management Institute
-  [9.0200, 38.8190], // Civil Service College
-  [9.0200, 38.8235], // St. Michael
-  [9.0200, 38.8332], // CMC
-  [9.0208, 38.8435], // Meri
-  [9.0229, 38.8773], // Ayat
+  [9.0140, 38.7140], [9.0148, 38.7242], [9.0155, 38.7358],
+  [9.0068, 38.7435], [9.0098, 38.7505], [9.0122, 38.7570],
+  [9.0145, 38.7636], [9.0155, 38.7690], [9.0163, 38.7745],
+  [9.0171, 38.7800], [9.0178, 38.7855], [9.0185, 38.7910],
+  [9.0192, 38.7965], [9.0200, 38.8010], [9.0200, 38.8055],
+  [9.0200, 38.8100], [9.0200, 38.8145], [9.0200, 38.8190],
+  [9.0200, 38.8235], [9.0200, 38.8332], [9.0208, 38.8435],
+  [9.0229, 38.8773],
 ];
 
-// Blue Line: Menelik II Square (north) → Kality (south)
 const BLUE_LINE: [number, number][] = [
-  [9.0483, 38.7468], // Menelik II Square
-  [9.0421, 38.7471], // Atikilt Tera
-  [9.0360, 38.7474], // Gojam Berenda
-  [9.0295, 38.7478], // Autobus Tera
-  [9.0230, 38.7478], // Sebategna
-  [9.0165, 38.7468], // Abnet
-  [9.0100, 38.7455], // Darmar
-  [9.0068, 38.7435], // Tegbared (interchange)
-  [9.0098, 38.7505], // Mexico
-  [9.0122, 38.7570], // Leghar
-  [9.0145, 38.7636], // Stadium
-  [9.0080, 38.7636], // Meshwlekya
-  [9.0010, 38.7636], // Riche
-  [8.9940, 38.7636], // Temenja Yazh
-  [8.9870, 38.7636], // Lancha
-  [8.9800, 38.7636], // Nefas Silk 2
-  [8.9730, 38.7636], // Nefas Silk 1
-  [8.9660, 38.7636], // Adey Ababa
-  [8.9590, 38.7636], // Saris
-  [8.9510, 38.7636], // Abo Junction
-  [8.9430, 38.7636], // Kality
+  [9.0483, 38.7468], [9.0421, 38.7471], [9.0360, 38.7474],
+  [9.0295, 38.7478], [9.0230, 38.7478], [9.0165, 38.7468],
+  [9.0100, 38.7455], [9.0068, 38.7435], [9.0098, 38.7505],
+  [9.0122, 38.7570], [9.0145, 38.7636], [9.0080, 38.7636],
+  [9.0010, 38.7636], [8.9940, 38.7636], [8.9870, 38.7636],
+  [8.9800, 38.7636], [8.9730, 38.7636], [8.9660, 38.7636],
+  [8.9590, 38.7636], [8.9510, 38.7636], [8.9430, 38.7636],
 ];
 
-// Common Section: Tegbared → Stadium
 const COMMON: [number, number][] = [
-  [9.0068, 38.7435], // Tegbared
-  [9.0098, 38.7505], // Mexico
-  [9.0122, 38.7570], // Leghar
-  [9.0145, 38.7636], // Stadium
+  [9.0068, 38.7435], [9.0098, 38.7505],
+  [9.0122, 38.7570], [9.0145, 38.7636],
 ];
 
 @Component({
@@ -97,37 +64,31 @@ export class DashboardComponent implements AfterViewInit {
     script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
     script.onload = () => {
       this.map = L.map('railway-map').setView([9.02, 38.76], 12);
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap contributors', maxZoom: 19,
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        attribution: '© OpenStreetMap © CARTO', maxZoom: 19,
       }).addTo(this.map);
       this.drawLines();
       this.leafletReady = true;
       this.renderMarkers();
-      setInterval(() => this.renderMarkers(), 5000);
+      setInterval(() => this.renderMarkers(), 3000);
     };
     document.head.appendChild(script);
   }
 
   private drawLines() {
-    L.polyline(GREEN_LINE, {
-      color: '#4ade80', weight: 5, opacity: 0.9,
-    }).addTo(this.map).bindTooltip('Green Line — Line 1', { sticky: true });
+    L.polyline(GREEN_LINE, { color: '#4ade80', weight: 5, opacity: 0.9 })
+      .addTo(this.map).bindTooltip('Green Line — Line 1', { sticky: true });
 
-    L.polyline(BLUE_LINE, {
-      color: '#60a5fa', weight: 5, opacity: 0.9,
-    }).addTo(this.map).bindTooltip('Blue Line — Line 2', { sticky: true });
+    L.polyline(BLUE_LINE, { color: '#60a5fa', weight: 5, opacity: 0.9 })
+      .addTo(this.map).bindTooltip('Blue Line — Line 2', { sticky: true });
 
-    L.polyline(COMMON, {
-      color: '#f87171', weight: 6, opacity: 1, dashArray: '10 5',
-    }).addTo(this.map).bindTooltip('Common Section', { sticky: true });
+    L.polyline(COMMON, { color: '#f87171', weight: 6, opacity: 1, dashArray: '10 5' })
+      .addTo(this.map).bindTooltip('Common Section', { sticky: true });
 
-    // Interchange marker at Tegbared
     L.circleMarker([9.0068, 38.7435], {
-      radius: 9, fillColor: '#fff',
-      color: '#f87171', weight: 3, fillOpacity: 1,
+      radius: 9, fillColor: '#fff', color: '#f87171', weight: 3, fillOpacity: 1,
     }).bindTooltip('Tegbared — Interchange').addTo(this.map);
 
-    // Legend
     const legend = (L.control as any)({ position: 'bottomleft' });
     legend.onAdd = () => {
       const div = L.DomUtil.create('div');
@@ -149,12 +110,27 @@ export class DashboardComponent implements AfterViewInit {
 
     (this.store.entities() as any[]).forEach((train: any) => {
       const color = STATUS_COLORS[train.status] ?? '#fff';
-      const html = `<div style="background:${color};width:16px;height:16px;
-        border-radius:50%;border:2px solid #fff;box-shadow:0 0 10px ${color}"></div>`;
-      const icon = L.divIcon({ className: '', html, iconSize: [16, 16], iconAnchor: [8, 8] });
+      const html = `
+        <div class="train-dot" style="
+          background:${color};
+          width:24px;height:24px;
+          border-radius:50%;
+          border:3px solid #fff;
+          box-shadow:0 0 12px ${color}, 0 0 24px ${color};
+          position:relative;
+        ">
+          <div style="
+            position:absolute;top:50%;left:50%;
+            transform:translate(-50%,-50%);
+            font-size:9px;font-weight:700;color:#000;line-height:1;
+          ">${train.code?.split('-')[1] ?? ''}</div>
+        </div>`;
+      const icon = L.divIcon({ className: '', html, iconSize: [24, 24], iconAnchor: [12, 12] });
 
       if (this.trainMarkers.has(train.id)) {
-        this.trainMarkers.get(train.id).setLatLng([train.latitude, train.longitude]);
+        const marker = this.trainMarkers.get(train.id);
+        marker.setLatLng([train.latitude, train.longitude]);
+        marker.setIcon(icon);
       } else {
         const m = L.marker([train.latitude, train.longitude], { icon })
           .bindPopup(`<b>${train.code}</b> — ${train.name}<br>Status: ${STATUS_LABELS[train.status]}`)
@@ -171,8 +147,7 @@ export class DashboardComponent implements AfterViewInit {
         const isCommon = s.line?.name?.includes('Common');
         const dotColor = isCommon ? '#f87171' : isGreen ? '#4ade80' : '#60a5fa';
         L.circleMarker([s.latitude, s.longitude], {
-          radius: 5, fillColor: dotColor,
-          color: '#fff', weight: 2, fillOpacity: 1,
+          radius: 5, fillColor: dotColor, color: '#fff', weight: 2, fillOpacity: 1,
         }).bindTooltip(`${s.name} (${s.code})`, { direction: 'top' })
           .addTo(this.map);
       });
