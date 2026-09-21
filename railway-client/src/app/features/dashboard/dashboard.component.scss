@@ -37,22 +37,14 @@
 .trains-table {
   width: 100%;
   background: #111827 !important;
-
   th.mat-header-cell {
-    background: #1e293b !important;
-    color: #94a3b8 !important;
-    font-size: 0.8rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    border-bottom-color: #334155 !important;
+    background: #1e293b !important; color: #94a3b8 !important;
+    font-size: 0.8rem; text-transform: uppercase;
+    letter-spacing: 0.05em; border-bottom-color: #334155 !important;
   }
-
   td.mat-cell {
-    color: #e2e8f0 !important;
-    border-bottom-color: #1e293b !important;
-    font-size: 0.9rem;
+    color: #e2e8f0 !important; border-bottom-color: #1e293b !important; font-size: 0.9rem;
   }
-
   tr.mat-row:hover td { background: #1e293b !important; }
   tr.clickable { cursor: pointer; }
 }
@@ -69,3 +61,12 @@
 }
 .loading { color: #94a3b8; font-size: 0.9rem; }
 .error { color: #f87171; }
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.2); opacity: 0.8; }
+}
+
+:host ::ng-deep .train-dot {
+  animation: pulse 1.5s ease-in-out infinite;
+}
