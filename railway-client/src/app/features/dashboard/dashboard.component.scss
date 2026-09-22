@@ -7,8 +7,7 @@
 .kpi-row {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 0.75rem;
-  margin-bottom: 1rem;
+  gap: 0.75rem; margin-bottom: 1rem;
 }
 .kpi-card {
   background: #1e293b; border-radius: 10px; padding: 0.85rem 1rem;
@@ -19,18 +18,15 @@
   &.delayed .kpi-value { color: #fb923c; }
 }
 
-.map-row {
-  display: flex; gap: 1rem; margin-bottom: 1rem;
-}
+.map-row { display: flex; gap: 1rem; margin-bottom: 1rem; }
 #railway-map {
-  flex: 1; height: 380px; border-radius: 10px; border: 1px solid #1e293b;
-  min-width: 0;
+  flex: 1; height: 380px; border-radius: 10px;
+  border: 1px solid #1e293b; min-width: 0;
 }
 
 .detail-panel {
   width: 240px; background: #111827; border-radius: 10px;
-  padding: 1rem; border: 1px solid #1e293b; color: #e2e8f0;
-  flex-shrink: 0;
+  padding: 1rem; border: 1px solid #1e293b; color: #e2e8f0; flex-shrink: 0;
   h3 { font-size: 0.95rem; margin-bottom: 0.75rem; color: #fff; }
   .detail-row {
     display: flex; justify-content: space-between; font-size: 0.8rem;
@@ -71,15 +67,31 @@
 .loading { color: #94a3b8; font-size: 0.85rem; }
 .error { color: #f87171; }
 
-/* Tablet */
+.announcements-section {
+  margin-top: 1.5rem;
+  h2 { color: #e2e8f0; margin-bottom: 1rem; font-size: 1rem; }
+  .no-announce { color: #475569; font-size: 0.85rem; }
+}
+.announce-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+}
+.announce-card {
+  background: #1a1000; border: 1px solid #78350f;
+  border-radius: 10px; padding: 1rem;
+  .ann-title { font-size: 0.95rem; font-weight: 600; color: #fbbf24; margin-bottom: 0.4rem; }
+  .ann-body { font-size: 0.85rem; color: #d97706; line-height: 1.5; }
+  .ann-meta { font-size: 0.72rem; color: #92400e; margin-top: 0.6rem; }
+}
+
 @media (max-width: 768px) {
   .kpi-row { grid-template-columns: repeat(2, 1fr); }
   .map-row { flex-direction: column; }
   #railway-map { height: 300px; }
   .detail-panel { width: 100%; }
+  .announce-grid { grid-template-columns: 1fr; }
 }
-
-/* Mobile */
 @media (max-width: 480px) {
   .dashboard-layout { padding: 0.75rem; }
   .kpi-row { grid-template-columns: repeat(2, 1fr); gap: 0.5rem; }
