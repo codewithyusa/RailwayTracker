@@ -35,6 +35,8 @@
   background: #dc2626; color: #fff; border: none;
   padding: 0.3rem 0.8rem; border-radius: 6px;
   cursor: pointer; font-size: 0.8rem; font-weight: 500;
+  width: auto;
+  white-space: nowrap;
   &:hover { background: #b91c1c; }
 }
 
