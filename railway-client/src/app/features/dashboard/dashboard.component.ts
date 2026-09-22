@@ -1,7 +1,9 @@
-import { Component, inject, AfterViewInit, signal } from '@angular/core';
-import { DecimalPipe } from '@angular/common';
+import { Component, inject, AfterViewInit, signal, OnInit } from '@angular/core';
+import { DecimalPipe, DatePipe } from '@angular/common';
 import { MatTableModule } from '@angular/material/table';
 import { RailwayStore } from '../../store/railway.store';
+import { TrainService } from '../../services/train.service';
+import { Announcement } from '../../models/train.model';
 
 declare const L: any;
 
@@ -37,20 +39,40 @@ const COMMON: [number, number][] = [
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [MatTableModule, DecimalPipe],
+  imports: [MatTableModule, DecimalPipe, DatePipe],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss',
 })
-export class DashboardComponent implements AfterViewInit {
+export class DashboardComponent implements AfterViewInit, OnInit {
   store = inject(RailwayStore) as any;
+  private api = inject(TrainService);
   selectedTrain = signal<any>(null);
+  allAnnouncements = signal<Announcement[]>([]);
 
   private map: any;
   private trainMarkers = new Map<number, any>();
   private stationMarkersAdded = false;
   private leafletReady = false;
 
+  ngOnInit() {
+    this.loadAnnouncements();
+    setInterval(() => this.loadAnnouncements(), 30000);
+  }
+
   ngAfterViewInit() { this.initMap(); }
+
+  private loadAnnouncements() {
+    this.api.getAllAnnouncements().subscribe({
+      next: a => this.allAnnouncements.set(a),
+      error: () => {}
+    });
+  }
+
+  stationName(id: number | null): string {
+    if (!id) return 'General';
+    const s = (this.store.stations() as any[]).find((s: any) => s.id === id);
+    return s?.name ?? `Station #${id}`;
+  }
 
   private initMap() {
     if (typeof window === 'undefined') return;
@@ -111,15 +133,11 @@ export class DashboardComponent implements AfterViewInit {
     (this.store.entities() as any[]).forEach((train: any) => {
       const color = STATUS_COLORS[train.status] ?? '#fff';
       const html = `
-        <div class="train-dot" style="
-          background:${color};
-          width:24px;height:24px;
-          border-radius:50%;
-          border:3px solid #fff;
+        <div style="background:${color};width:24px;height:24px;
+          border-radius:50%;border:3px solid #fff;
           box-shadow:0 0 12px ${color}, 0 0 24px ${color};
           position:relative;">
-          <div style="
-            position:absolute;top:50%;left:50%;
+          <div style="position:absolute;top:50%;left:50%;
             transform:translate(-50%,-50%);
             font-size:9px;font-weight:700;color:#000;line-height:1;">
             ${train.code?.split('-')[1] ?? ''}
