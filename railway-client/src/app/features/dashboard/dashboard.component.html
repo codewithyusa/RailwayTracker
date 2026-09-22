@@ -77,4 +77,25 @@
     <div class="skeleton">Loading table...</div>
   }
 
+  <!-- Announcements -->
+  <div class="announcements-section">
+    <h2>📢 Latest Announcements</h2>
+    @if (allAnnouncements().length === 0) {
+      <p class="no-announce">No announcements at this time.</p>
+    } @else {
+      <div class="announce-grid">
+        @for (a of allAnnouncements(); track a.id) {
+          <div class="announce-card">
+            <div class="ann-title">{{ a.title }}</div>
+            <div class="ann-body">{{ a.body }}</div>
+            <div class="ann-meta">
+              {{ stationName(a.stationId) }} ·
+              {{ a.createdAt | date:'short' }}
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </div>
+
 </div>
