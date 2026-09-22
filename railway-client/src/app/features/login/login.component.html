@@ -1,0 +1,46 @@
+<div class="login-layout">
+  <div class="login-card">
+    <div class="login-header">
+      <div class="logo">🚊</div>
+      <h1>RailwayTracker</h1>
+      <p>Admin Portal — Ethiopia</p>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+
+      <mat-form-field appearance="outline" class="full">
+        <mat-label>Username</mat-label>
+        <input matInput formControlName="username" autocomplete="username" />
+        @if (form.controls.username.touched && form.controls.username.invalid) {
+          <mat-error>Username is required</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full">
+        <mat-label>Password</mat-label>
+        <input matInput type="password" formControlName="password"
+               autocomplete="current-password" />
+        @if (form.controls.password.touched && form.controls.password.invalid) {
+          <mat-error>Password is required</mat-error>
+        }
+      </mat-form-field>
+
+      @if (error()) {
+        <div class="error-msg">❌ {{ error() }}</div>
+      }
+
+      @if (isLoading()) {
+        <div class="spinner-row">
+          <mat-spinner diameter="24" />
+          <span>Signing in...</span>
+        </div>
+      }
+
+      <button mat-raised-button color="primary" type="submit"
+              [disabled]="isLoading()" class="submit-btn">
+        Sign In
+      </button>
+
+    </form>
+  </div>
+</div>
