@@ -4,13 +4,14 @@
 }
 
 .stations-panel {
-  flex: 1;
+  flex: 1; min-width: 0;
   h2 { color: #e2e8f0; margin-bottom: 1rem; font-size: 1.2rem; }
 }
 
-.stations-table {
-  width: 100%; background: #111827 !important;
+.table-scroll { overflow-x: auto; }
 
+.stations-table {
+  width: 100%; background: #111827 !important; min-width: 400px;
   th.mat-header-cell {
     background: #1e293b !important; color: #94a3b8 !important;
     font-size: 0.75rem; text-transform: uppercase;
@@ -44,7 +45,7 @@ mat-paginator {
 }
 
 .info-panel {
-  width: 300px; background: #111827; border-radius: 10px;
+  width: 300px; flex-shrink: 0; background: #111827; border-radius: 10px;
   padding: 1.2rem; border: 1px solid #1e293b;
   color: #e2e8f0; align-self: flex-start;
 }
@@ -82,4 +83,17 @@ mat-paginator {
   border-radius: 8px; padding: 0.7rem; margin-bottom: 0.5rem;
   .ann-title { font-size: 0.85rem; font-weight: 600; color: #fbbf24; }
   .ann-body { font-size: 0.8rem; color: #d97706; margin-top: 0.3rem; }
+}
+
+/* Tablet */
+@media (max-width: 768px) {
+  .stations-layout { flex-direction: column; padding: 1rem; gap: 1rem; }
+  .info-panel { width: 100%; }
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+  .stations-layout { padding: 0.75rem; }
+  .stations-panel h2 { font-size: 1rem; }
+  .info-panel { padding: 0.9rem; }
 }
