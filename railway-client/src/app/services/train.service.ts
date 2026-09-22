@@ -25,6 +25,10 @@ export class TrainService {
     return this.http.get<Announcement[]>(`${this.base}/announcements/station/${stationId}`);
   }
 
+  getAllAnnouncements(): Observable<Announcement[]> {
+    return this.http.get<Announcement[]>(`${this.base}/announcements`);
+  }
+
   createAnnouncement(dto: CreateAnnouncementDto): Observable<number> {
     return this.http.post<number>(`${this.base}/announcements`, dto);
   }
