@@ -31,6 +31,12 @@ export class LoginComponent {
     password: ['', Validators.required],
   });
 
+  constructor() {
+    if (this.auth.isLoggedIn()) {
+      this.router.navigate(['/dashboard']);
+    }
+  }
+
   onSubmit() {
     if (this.form.invalid) { this.form.markAllAsTouched(); return; }
     const { username, password } = this.form.getRawValue();
