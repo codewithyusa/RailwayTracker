@@ -22,8 +22,6 @@ import { Router } from '@angular/router';
       <div class="nav-right">
         @if (auth.isLoggedIn()) {
           <button class="logout-btn" (click)="logout()">Logout</button>
-        } @else {
-          <a routerLink="/login" class="login-link">Admin Login</a>
         }
         <div class="nav-status" [class]="sync.connectionState()">
           ● {{ sync.connectionState() }}
