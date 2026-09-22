@@ -1,23 +1,37 @@
 .navbar {
   display: flex;
   align-items: center;
-  gap: 2rem;
-  padding: 0.75rem 1.5rem;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
   background: #0f172a;
   border-bottom: 1px solid #1e293b;
+  flex-wrap: wrap;
 
-  .nav-brand { font-weight: 700; color: #fff; font-size: 1rem; }
+  .nav-brand { font-weight: 700; color: #fff; font-size: 0.95rem; }
 
   .nav-links {
-    display: flex; gap: 1rem;
-    a { color: #94a3b8; text-decoration: none; font-size: 0.9rem; padding: 0.4rem 0.8rem; border-radius: 6px; }
+    display: flex; gap: 0.25rem;
+    a {
+      color: #94a3b8; text-decoration: none;
+      font-size: 0.85rem; padding: 0.35rem 0.6rem; border-radius: 6px;
+    }
     a.active { background: #1e293b; color: #fff; }
   }
 
   .nav-status {
-    margin-left: auto; font-size: 0.8rem; font-weight: 500;
+    margin-left: auto; font-size: 0.75rem; font-weight: 500;
+    white-space: nowrap;
     &.connected { color: #4ade80; }
     &.reconnecting { color: #fbbf24; }
     &.disconnected { color: #f87171; }
+  }
+}
+
+@media (max-width: 480px) {
+  .navbar {
+    padding: 0.6rem 0.75rem;
+    .nav-brand { font-size: 0.85rem; }
+    .nav-links a { font-size: 0.78rem; padding: 0.3rem 0.5rem; }
+    .nav-status { font-size: 0.7rem; }
   }
 }
