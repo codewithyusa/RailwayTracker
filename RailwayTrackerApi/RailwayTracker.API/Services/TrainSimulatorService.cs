@@ -55,7 +55,7 @@ public class TrainSimulatorService : BackgroundService
         var trains = await db.Trains
             .Where(t => t.IsActive && t.Status != TrainStatus.Cancelled)
             .Include(t => t.Line)
-            .ThenInclude(l => l.Stations!.OrderBy(s => s.StopOrder))
+            .ThenInclude(l => l!.Stations!.OrderBy(s => s.StopOrder))
             .ToListAsync(ct);
 
         foreach (var train in trains)
